@@ -1,0 +1,81 @@
+html{
+    scroll-behavior: smooth;
+    font-family: 'Roboto',sans-serif;
+}
+.position_element{
+    position: absolute;
+    top: 95%;
+}
+a{
+    text-decoration: none;
+}
+a:link{
+    text-decoration: none;
+}
+/* responsive font-size and padding etc*/
+
+.font-small{
+    font-size : clamp(2em, 1.2vw, 2.2em);
+    transition: 0.3s all;
+  }
+  .font-big{
+    font-size : clamp(2em, 2vw, 4em);
+    transition: 0.3s all;
+  }
+  .font-extra-big{
+    font-size : clamp(12em, 3vw, 10em);
+    transition: 0.3s all;
+  }
+  .font-x-small{
+   font-size: clamp(.8em, 2.5vw, 1em);
+   transition: 0.3s all;
+  }
+
+  .padding-small{
+      padding:3%;
+  }
+  .padding-big{
+      padding: 25%;
+  }
+  .margin-small{
+      margin: 13%;
+  }
+  .margin-big{
+      margin: 20%;
+  }
+  .padding-dotted{
+      padding: 10%;
+  }
+  .paddingTool-column{
+      padding: .3%;
+  }
+.primary-second-colour{
+    color: #3B71CA;
+}
+
+.primary-light-colour{
+color: #54B4D3;
+}
+.wd-100{
+    width: 100%;
+}
+
+.icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -.125em;
+}
+
+@media print {
+
+    #paymentModal,#view_sales,[data-bs-target="#paymentModal"],title,
+    #printReceipt,#make_payment,#total_sales,#add_product,#printReceiptModalLabel,#main_total,.footer
+     {
+        display: none !important;
+    }
+    @page {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+}

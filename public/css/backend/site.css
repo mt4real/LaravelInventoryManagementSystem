@@ -1,0 +1,113 @@
+
+html{
+    scroll-behavior: smooth;
+    font-family: 'Roboto',sans-serif;
+    overflow: hidden;
+}
+
+  /* Hide all steps by default: */
+  .tab {
+    display: none;
+  }
+
+
+
+  /* Mark the steps that are finished and valid: */
+  .step.finish {
+    background-color: #04AA6D;
+  }
+
+
+
+
+.slideInAnimation{
+    animation-duration: 3s;
+    animation-name: slidein;
+
+  }
+
+  @keyframes slidein {
+    from {
+      margin-left: 100%;
+      width: 300%;
+
+    }
+
+    to {
+      margin-left: 0%;
+      width: 100%;
+    }
+  }
+
+
+  .slideInFromLeftAnimation {
+    animation-duration: 3s ;
+    animation-name: slidRight;
+
+  }
+
+  @keyframes slideRight {
+    from {
+      margin-left: 0%;
+      width: 300%;
+
+    }
+
+    to {
+      margin-left: 100%;
+      width: 100%;
+    }
+  }
+
+.error{
+    border: 1px solid #F93154;
+}
+.warning-text-colour{
+    color: #FFA900;
+}
+.primary-text-colour{
+    color: #1266F1;
+}
+
+/* responsive font-size and padding etc*/
+
+.font-small{
+    font-size : clamp(2em, 1.2vw, 2.2em);
+    transition: 0.3s all;
+  }
+  .font-big{
+    font-size : clamp(2em, 2vw, 4em);
+    transition: 0.3s all;
+  }
+  .font-extra-big{
+    font-size : clamp(12em, 3vw, 10em);
+    transition: 0.3s all;
+  }
+  .font-x-small{
+   font-size: clamp(.8em, 2.5vw, 1em);
+   transition: 0.3s all;
+  }
+
+  .padding-small{
+      padding:3%;
+  }
+  .padding-big{
+      padding: 25%;
+  }
+  .margin-small{
+      margin: 13%;
+  }
+  .margin-big{
+      margin: 20%;
+  }
+  .padding-dotted{
+      padding: 10%;
+  }
+  .paddingTool-column{
+      padding: .3%;
+  }
+
+
+
+
+
