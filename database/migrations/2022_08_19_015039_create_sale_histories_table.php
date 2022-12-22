@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('sales_price',15,2);
             $table->decimal('total_amount',15,2);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

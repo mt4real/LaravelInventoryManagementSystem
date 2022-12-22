@@ -103,7 +103,7 @@
                                         <td>{{ $archived_suppliedProduct->quantity_supplied }}</td>
                                         <td>{{ $archived_suppliedProduct->unit_price }}</td>
                                         <td>{{ $archived_suppliedProduct->total_amount_supplied }}</td>
-                                        <td>{{ ucwords(Auth::user()->name) }}</td>
+                                        <td>{{ $archived_suppliedProduct->user->name }}</td>
                                         <td>{{ $archived_suppliedProduct->deleted_at }}</td>
                                         <td>
                                             <div class="btn-group" role="group" aria-label="edit supplied product">

@@ -64,9 +64,11 @@
                                     checked />
                                 <label class="remember" for="remember"> Remember me </label>
                             </div>
-                            {{-- <div class="text-primary">
+                            @if (Route::has('password.request'))
+                            <div class="text-primary">
                                     <a href="{{route('password.request')}}">{{__('forgot password?')}}</a>
-                            </div> --}}
+                            </div>
+                            @endif
                         </div>
                         <div class="row">
                             <div class="d-grid col-10 mx-auto">

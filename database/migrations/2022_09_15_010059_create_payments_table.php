@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('payment_type');
             $table->string('payment_session');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

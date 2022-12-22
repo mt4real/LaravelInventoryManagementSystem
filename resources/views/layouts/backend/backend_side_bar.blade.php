@@ -144,13 +144,28 @@
 
                 </ul>
             </li>
-        </ul>
+            <li class="sidebar-item">
+                <a data-bs-target="#payments" data-bs-toggle="collapse" class="sidebar-link collapsed">
+                    <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">Payments</span>
+                </a>
+                <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    @canany(['viewPayments'], App\Models\User::class)
+                    <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.viewPayments')}}">View Payments</a></li>
+                    @endcanany
 
+                </ul>
+            </li>
+
+
+        </ul>
+        @canany(['salesHistoryReport','getSalesHistoryReport',
+        'productsSuppliedReport','getProductsSuppliedReport',
+        'paymentsHistoryReport','getPaymentsHistoryReport'], App\Models\User::class)
         <div class="sidebar-cta">
             <div class="sidebar-cta-content">
-                <strong class="d-inline-block mb-2">Sales Report</strong>
+                <strong class="d-inline-block mb-2">Sales and Payment Report</strong>
                 <div class="mb-3 text-sm">
-                    Your  sales report is ready for download!
+                    Your  sales and payment report is ready for download!
                 </div>
 
                 <div class="d-grid">
@@ -158,5 +173,6 @@
                 </div>
             </div>
         </div>
+        @endcanany
     </div>
 </nav>

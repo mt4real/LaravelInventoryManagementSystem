@@ -103,7 +103,7 @@
                                                 <td>{{ $archived_product->product_quantity }}</td>
                                                 <td>{{ $archived_product->sale_price }}</td>
                                                 <td>{{ $archived_product->total_amount }}</td>
-                                                <td>{{ ucwords($archived_product->user->name) }}</td>
+                                                <td>{{ ucwords(Auth::user()->name) }}</td>
                                                 <td>{{ $archived_product->deleted_at }}</td>
                                                 <td>
                                                     <div class="btn-group" role="group" aria-label="product actions">

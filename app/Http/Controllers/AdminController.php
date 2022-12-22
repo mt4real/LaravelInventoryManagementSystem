@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Repository\PaymentRepository;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
@@ -28,19 +27,22 @@ use App\Models\Sale;
 use App\Models\SaleHistory;
 use App\Http\Repository\SaleRepository;
 use App\Http\Repository\UserRepository;
+use App\Http\Repository\PaymentRepository;
+use App\Http\Repository\DashboardRepository;
 use Exception;
 
 
 class AdminController extends Controller
 {
 
-    public function __construct(User $user)
+    public function __construct(DashboardRepository $dashboardRepository)
     {
         $this->middleware(['auth', 'verified'], ['except' => [
             'indexPageCreate', 'indexPageStore', 'companyWelcome'
         ]]);
 
-        return $this->user=$user;
+        return $this->dashboardRepository=$dashboardRepository;
+
     }
 
     public function indexPageCreate()
@@ -105,7 +107,16 @@ class AdminController extends Controller
     {
         try {
 
-            return view('adminAuth.admin-dashboard');
+            $countAdmUsers=$this->dashboardRepository->getNumberOfAdminUsers();
+            $countActiveAdmUsers=$this->dashboardRepository->getNumberOfActiveAdminUsers();
+            $countInactiveAdmUsers=$this->dashboardRepository->getNumberOfInactiveAdminUsers();
+            $countSuperAdmUsers=$this->dashboardRepository->getNumberOfSuperAdminUsers();
+            $countActiveSuperAdmUsers=$this->dashboardRepository->getNumberOfActiveSuperAdminUsers();
+            $countInactiveSuperAdmUsers=$this->dashboardRepository->getNumberOfInactiveSuperAdminUsers();
+
+            return view('adminAuth.admin-dashboard')->with(compact(
+                'countAdmUsers','countActiveAdmUsers','countInactiveAdmUsers','countSuperAdmUsers',
+            'countActiveSuperAdmUsers','countInactiveSuperAdmUsers'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
@@ -214,7 +225,7 @@ class AdminController extends Controller
     {
         try {
 
-            $showCompany = CompanyBio::orderBy('updated_at', "DESC")->get();
+            $showCompany = CompanyBio::latest()->get();
 
             return view('company.admin-view-company')->with(compact('showCompany'));
         } catch (ErrorException $ex) {
@@ -226,7 +237,7 @@ class AdminController extends Controller
     {
 
     try {
-        $user_roles = Role::orderBy('updated_at', "DESC")->get();
+        $user_roles = Role::latest()->get();
         return view('user.admin-add-user')->with(compact('user_roles'));
     } catch (ErrorException $ex) {
         return response()->json(['message' => $ex->getMessage()]);
@@ -311,7 +322,7 @@ class AdminController extends Controller
     {
         try {
 
-            $admin_users = User::orderBy('updated_at', "DESC")->get();
+            $admin_users = User::latest()->get();
 
             return view('user.admin-view-user')->with(compact('admin_users'));
         } catch (ErrorException $ex) {
@@ -324,7 +335,7 @@ class AdminController extends Controller
         try {
 
             $edit_user = User::where(['id' => $id])->first();
-            $user_roles = Role::orderBy('updated_at', "DESC")->get();
+            $user_roles = Role::latest()->get();
             return view('user.admin-edit-user')->with(compact('edit_user', 'user_roles'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -514,7 +525,7 @@ class AdminController extends Controller
     {
         try {
 
-            $view_supplied_products = ProductSupplied::orderBy('updated_at', "DESC")->get();
+            $view_supplied_products = ProductSupplied::latest()->get();
             return view('supply.admin-view-supplied-product')->with(compact('view_supplied_products'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -612,6 +623,73 @@ class AdminController extends Controller
         }
     }
 
+    public function viewPayments()
+    {
+        try {
+
+            $view_payments =Payment::latest()->get();
+            return view('payment.admin-view-payment-history')->with(compact('view_payments'));
+        } catch (ErrorException $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+
+    public function archivePaymentsAll(Request $request)
+    {
+        try {
+
+            $ids = $request->payment_ids;
+            Payment::whereIn('id', $ids)->delete();
+            return redirect()->back()->with('flash_message_success', "You successfully archived the selected payment record(s)");
+        } catch (ErrorException $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+    public function restoreArchivedPaymentsAll(Request $request)
+    {
+
+    try {
+
+    $ids = $request->ids;
+    Payment::withTrashed()->whereIn('id', explode(",",$ids))->restore();
+    return response()->json(['status'=>true, 'restored'=>"Selected Payment record(s) successfully restored"]);
+
+    }
+          catch (Exception $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+
+    public function viewArchivePayments()
+    {
+
+        try {
+
+            $archived_payments = Payment::onlyTrashed()->orderBy('deleted_at', 'DESC')->get();
+            return view('payment.admin-view-archived-payment-history')->with(compact('archived_payments'));
+        } catch (ErrorException $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+    public function deletePaymentPermanentlyAll(Request $request)
+    {
+
+
+       try {
+
+            $ids = $request->ids;
+            Payment::onlyTrashed()->whereIn('id', explode(",", $ids))->forceDelete();
+            return response()->json(['status'=>true, 'deleted'=>"Selected Payment record(s) successfully deleted"]);
+           } catch (Exception $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+
 
     public function priceEditCreate($id)
     {
@@ -659,7 +737,7 @@ class AdminController extends Controller
     {
         try {
 
-            $price_views = AddProduct::orderBy('updated_at', "DESC")->get();
+            $price_views = AddProduct::latest()->get();
             return view('price.admin-view-price')->with(compact('price_views'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -670,7 +748,7 @@ class AdminController extends Controller
 
         try {
 
-            $categories = Category::orderBy('updated_at', "DESC")->get();
+            $categories = Category::latest()->get();
             return view('product.admin-add-product')->with(compact('categories'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -785,7 +863,7 @@ class AdminController extends Controller
 
         try {
 
-            $view_products = AddProduct::orderBy('updated_at', "DESC")->get();
+            $view_products = AddProduct::latest()->get();
             return view('product.admin-view-product')->with(compact('view_products'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -996,7 +1074,7 @@ class AdminController extends Controller
         try {
 
 
-            $view_categories = Category::orderBy('updated_at', "DESC")->get();
+            $view_categories = Category::latest()->get();
             return view('category.admin-view-categories')->with(compact('view_categories'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -1086,11 +1164,14 @@ class AdminController extends Controller
         }
     }
 
-    public function getSalesPos(){
+    public function getSalesPaymentPos(){
         $saleRepository=new SaleRepository();
-        $sales_pos=Sale::with('addProduct')->where(['user_id'=>Auth::user()->id])->get();
+        $getPaymentSalesData=new PaymentRepository();
+        $sales_pos=$saleRepository->getSales();
         $company_name=CompanyBio::first();
-        return response()->json(['salesData'=>$sales_pos,'grandTotal'=>$saleRepository->getUserSalesAmount(),"companyBio"=>$company_name->company_name]);
+        return response()->json(['salesData'=>$sales_pos,
+        'grandTotal'=>$saleRepository->getUserSalesAmount(),
+        "companyBio"=>$company_name->company_name,'paymentData'=>$getPaymentSalesData->getUserSalesPayment()]);
     }
 
     public function salesPosStore(Request $request)
@@ -1159,7 +1240,7 @@ try {
             $sales_product->session_id = $session_id;
             $sales_product->save();
 
-            $sales_pos=Sale::with('addProduct')->where(['user_id'=>Auth::user()->id])->get();
+            $sales_pos=$saleRepository->getSales();
 
             return response()->json(['salesData'=>$sales_pos,'grandTotal'=>$saleRepository->getUserSalesAmount()]);
 
@@ -1180,16 +1261,21 @@ try {
             'paid_amount'=>"required|regex:/^\d{0,8}(\.\d{1,4})?$/",
 
         ])->validate();
+        $getPaymentSalesData=new PaymentRepository();
 
     try{
-if ($request->isMethod('post')) {
+        if ($request->isMethod('post')) {
     $data=$request->all();
     $saleRepository=new SaleRepository();
     $payment=new Payment();
 
     if ($data['paid_amount']<$saleRepository->getUserSalesAmount()) {
         return response()->json(['invalidAmount'=>"The amount is invalid"]);
-    } else {
+    }
+    if($getPaymentSalesData->getUserSalesPayment()){
+        return response()->json(['doublePayment'=>"This payment has already been made"]);
+    }
+    else {
         $payment->user_id=Auth::user()->id;
         $payment->customer_name=$data['customer_name'];
         $payment->paid_amount=$data['paid_amount'];
@@ -1197,17 +1283,66 @@ if ($request->isMethod('post')) {
         $payment->change_amount=$data['paid_amount']-$saleRepository->getUserSalesAmount();
         $payment->payment_type=$data['payment_type'];
         $payment->payment_session=Str::random(20);
+
         $payment->save();
+        if (!isset($sales_sessionId)) {
+            $sales_sessionId =$payment->id;
+            Session::put('sales_sessionId', $sales_sessionId);
+        }
         return response()->json(['paymentData'=>$payment]);
-    }
-}
+        }
+        }
 
-   }
-   catch(ErrorException $ex){
-    return response()->json(['message'=>$ex->getMessage()]);
-}
+       }
+        catch(ErrorException $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
 
+            }
+
+    public function getSalesPayment(){
+
+        $getPaymentSalesData=new PaymentRepository();
+        try{
+            return response()->json(['getPaymentData'=>$getPaymentSalesData->getUserSalesPayment()]);
+
+        }
+        catch(ErrorException $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+            }
+
+        }
+
+
+
+    public function deleteUserSalesData(Request $request)
+    {
+
+
+       try {
+
+            $ids = Auth::user()->id;
+            Sale::whereIn('user_id', explode(",", $ids))->delete();
+            return response()->json(['status'=>true, 'deleted'=>"Selected Payment record(s) successfully deleted"]);
+           } catch (Exception $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
     }
+
+    public function deleteUserSalesSingleData(Request $request)
+    {
+
+
+       try {
+
+            $id= $request->id;
+            Sale::where(['id'=>$id])->delete();
+            return response()->json(['status'=>true, 'deleted'=>"Sales record(s) successfully deleted"]);
+           } catch (Exception $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
 
     public function printReceipt(){
 
@@ -1303,9 +1438,9 @@ if ($request->isMethod('post')) {
     public function userAvatar(Request $request){
 
         $userRepository=new UserRepository();
-if ($request->isMethod('post')) {
+    if ($request->isMethod('post')) {
     $data=$request->all();
-    if ($request->has('profile_avatar')) {
+    if (!empty(Auth::user()->image)) {
         User::deleteUserImage();
        }
        User::where(['id' => Auth::user()->id])->update([
@@ -1380,6 +1515,17 @@ if ($request->isMethod('post')) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
+    public function viewSalesHistory()
+    {
+        try {
+
+            $view_salesHistory =SaleHistory::latest()->get();
+            return view('sales.admin-view-sales-history')->with(compact('view_salesHistory'));
+        } catch (ErrorException $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
 
     public function salesHistoryReport(){
 
@@ -1418,12 +1564,24 @@ if ($request->isMethod('post')) {
 
     }
 
-    public function salesReport(){
+    public function archiveSalesHistoryAll(Request $request)
+    {
+        try {
+
+            $ids = $request->salesHistory_ids;
+            SaleHistory::whereIn('id', $ids)->delete();
+            return redirect()->back()->with('flash_message_success', "You successfully archived the selected sales record(s)");
+        } catch (ErrorException $ex) {
+            return response()->json(['message' => $ex->getMessage()]);
+        }
+    }
+
+    public function paymentsHistoryReport(){
 
         try{
 
-            $salesReport=Sale::latest()->get();
-            return view('sales.admin-view-sales-report-page')->with(compact('salesReport'));
+            $paymentsHistoryReport=Payment::latest()->get();
+            return view('payment.admin-view-payment-report')->with(compact('paymentsHistoryReport'));
 
         }
 
@@ -1433,7 +1591,7 @@ if ($request->isMethod('post')) {
 
            }
 
-    public function getSalesReport(Request $request){
+    public function getPaymentsHistoryReport(Request $request){
     $request->validate([
         'start_date'=>"required|nullable|date",
         'end_date'=>"required|nullable|date"
@@ -1441,14 +1599,14 @@ if ($request->isMethod('post')) {
 
     try {
         if ($request->start_date || $request->end_date) {
-            $salesReport=Sale::createdBetweenDates([$request->start_date, $request->end_date])->get();
+            $paymentsHistoryReport=Payment::createdBetweenDates([$request->start_date, $request->end_date])->get();
 
         }
         else{
-            $salesReport=Sale::latest()->get();
+            $paymentsHistoryReport=Payment::latest()->get();
         }
 
-        return view('sales.admin-view-sales-report-page')->with(compact('salesReport'));
+        return view('payment.admin-view-payment-report')->with(compact('paymentsHistoryReport'));
 
       }
 
@@ -1458,6 +1616,7 @@ if ($request->isMethod('post')) {
 
 
     }
+
 
 
     public function productsSuppliedReport(){
@@ -1497,12 +1656,9 @@ if ($request->isMethod('post')) {
 
     }
 
+      public function reportPageCreate(){
 
-
-
-    public function reportPageCreate(){
-
-        return view('sales.admin-view-report-page');
+        return view('report.admin-view-report-page');
     }
 
 

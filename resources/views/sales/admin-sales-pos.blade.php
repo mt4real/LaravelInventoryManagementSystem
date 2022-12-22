@@ -94,9 +94,10 @@
 
                                 </span>
                             </div>
-                            <div class="d-grid mx-auto col-6">
-                                <button type="button" class="btn btn-primary p-3" data-bs-toggle="modal"
-                                    data-bs-target="#paymentModal">Make sales payment</button>
+                            <hr>
+                            <div class="d-grid mx-auto col-6 mt-3">
+                                <button type="button" id="make_sales_btn" class="btn btn-primary p-3" data-bs-toggle="modal"
+                                    data-bs-target="#paymentModal" style="display: none;">Make sales payment</button>
                             </div>
                         </div>
                     </div>
@@ -125,14 +126,14 @@
                                         </div>
                                     </div>
                                     <div class="payment_form mt-3">
-                                        <form action="{{ route('admin.payment') }}" method="POST" id="salesPayment">
+                                        <form  method="POST" id="salesPayment">
                                             @csrf
                                             <div class="row">
                                                 <div class="bg-secondary-light p-3 col-12">
                                                     <label for="customer_name" class="p-2">Customer Name</label>
                                                     <input type="text" class="form-control form-control-lg"
                                                         name="customer_name" id="customer_name"
-                                                        placeholder="Customer Name" data-ajax-input="customer_name">
+                                                        placeholder="Customer Name" data-ajax-input="customer_name"
                                                     <span class="invalid-feedback" role="alert"
                                                         data-ajax-feedback="customer_name"></span>
                                                 </div>
@@ -145,7 +146,7 @@
                                                 <div class="col-4">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
-                                                            name="payment_type" value="Cash"
+                                                            name="payment_type" id="cash"  value="Cash"
                                                             data-ajax-input="payment_type">
                                                         <label class="form-check-label" for="cash">
                                                             <i data-fa-symbol="wallet" class="fa-solid fa-wallet"></i><svg
@@ -161,7 +162,7 @@
 
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
-                                                            name="payment_type" value="Transfer"
+                                                            name="payment_type" id="transfer" value="Transfer"
                                                             data-ajax-input="payment_type">
                                                         <label class="form-check-label" for="transfer">
                                                             <i data-fa-symbol="credit_card_alt"
@@ -177,7 +178,7 @@
 
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio"
-                                                            name="payment_type" value="POS"
+                                                            name="payment_type" id="POS" value="POS"
                                                             data-ajax-input="payment_type">
                                                         <label class="form-check-label" for="POS">
                                                             <i data-fa-symbol="credit_card_blank"
@@ -202,7 +203,7 @@
                                                         data-ajax-input="paid_amount">
                                                     <span class="invalid-feedback" role="alert"
                                                         data-ajax-feedback="paid_amount"></span>
-                                                    <p class="text-danger" id="invalid_amount"></p>
+                                                    <p class="text-danger" role="alert" id="invalid_amount"></p>
                                                 </div>
                                                 <div class="col-12">
                                                     <p class="font-big bg-success rounded text-white p-3"
@@ -215,13 +216,16 @@
                                             <div class="d-grid col-6 mx-auto mt-3">
                                                 <button type="submit" class="btn btn-primary rounded"
                                                     id="make_payment">Make payment</button>
+                                                    <p class="mt-3 text-center" id="double_payment">
+
+                                                    </p>
                                             </div>
 
                                         </form>
 
                                     </div>
                                     <div class="d-flex justify-content-end p-2">
-                                        <button class="btn btn-primary" data-bs-target="#printReceiptModal" data-bs-toggle="modal" data-bs-dismiss="modal">next</button>
+                                        <button class="btn btn-primary"  id="btn_next" data-bs-target="#printReceiptModal" data-bs-toggle="modal" data-bs-dismiss="modal">next</button>
                                     </div>
                                 </div>
                             </div>
@@ -239,7 +243,7 @@
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="printReceiptModalLabel">Print Receipt</h5>
                                 </div>
-                                <div class="modal-body text-center">
+                                <div class="modal-body text-center" id="receipt_modalBodyData">
                                     <img src="./logo.png" alt="Company Logo">
                                     <p class="company_name" class="centered">
 
@@ -252,18 +256,20 @@
                                     <table>
                                         <thead>
                                             <tr class="p-4">
+                                                <th>S/N</th>
                                                 <th  class="productName">Product Name</th>
                                                 <th class="quantity">QTY</th>
                                                 <th class="price">Price</th>
                                                 <th class="amount">Sub Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="salesReceiptBody">
                                             <tr class="p-4">
-                                                <td id="prd_name" class="productName"></td>
-                                                <td id="qty" class="quantity"></td>
-                                                <td id="pr" class="price"></td>
-                                                <td id="sub_total" class="amount"></td>
+                                                <td id="serial_no" class="serial_no"></td>
+                                                <td id="prd_name" class="productName prd_name"></td>
+                                                <td id="qty" class="quantity qty"></td>
+                                                <td id="pr" class="price pr"></td>
+                                                <td id="sub_total" class="amount sub_total"></td>
                                             </tr>
 
                                         </tbody>
@@ -278,7 +284,7 @@
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-end">
-                                        <span>Change</span>
+                                        <span>Change:</span>
                                         <p id="balance_collect">
 
                                         </p>
@@ -289,7 +295,9 @@
                                     </p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button class="btn btn-primary" id="printReceipt">Print Receipt</button>
+
+                                    <button type="submit"  class="btn btn-primary" id="printReceipt">Print Receipt</button>
+
                                     <button class="btn btn-primary" data-bs-target="#paymentModal" data-bs-toggle="modal" data-bs-dismiss="modal">Back</button>
 
                                 </div>

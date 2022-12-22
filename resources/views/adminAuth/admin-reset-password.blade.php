@@ -38,7 +38,7 @@
 
                         <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                             <label for="email" class="mb-3">Email</label>
-                            <input type="text" class="@error('email') is-invalid @enderror form-control-lg mb-3"
+                            <input type="text" class="@error('email') is-invalid @enderror form-control form-control-lg mb-3"
                                 id="email" name="email" value="{{ old('email', $request->email) }}"
                                 placeholder="Email">
                             @error('email')
@@ -52,7 +52,7 @@
                             <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                                 <label for="password" class="mb-3">Password</label>
                                 <input type="password"
-                                    class="@error('password') is-invalid @enderror form-control-lg mb-3" id="password"
+                                    class="@error('password') is-invalid @enderror form-control form-control-lg mb-3" id="password"
                                     name="password" placeholder="Password">
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
@@ -63,7 +63,7 @@
                             <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
                                 <label for="confirmation_password" class="mb-3">Password Confirmation</label>
                                 <input type="password" class="@error('confirmation_password')
-                                    @enderror form-control-lg mb-3"
+                                    @enderror form-control form-control-lg mb-3"
                                     id="confirmation_password" name="confirmation_password" placeholder="Password">
                                 @error('confirmation_password')
                                     <span class="invalid-feedback" role="alert">
@@ -74,7 +74,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="d-grid col-10 mx-auto">
+                            <div class="d-grid col-6 mx-auto">
                                 <button type="submit"
                                     class="btn btn-primary  btn-lg">{{ __('Password Confirmation') }}</button>
                             </div>

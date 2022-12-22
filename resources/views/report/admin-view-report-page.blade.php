@@ -13,16 +13,7 @@
                         </svg><strong class="font-small">{{ __('View Sales History Report') }}</strong>
                     </a>
                 </div>
-                <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
-                    <p>
-                        Sales Report
-                    </p>
-                    <a href="{{route('admin.salesReport')}}" class="btn btn-lg btn-primary" role="button">
-                        <i data-fa-symbol="right-bracket" class="fa-solid fa-right-to-bracket fa-3x"></i><svg class="icon">
-                            <use xlink:href="#right-bracket"></use>
-                        </svg><strong class="font-small">{{ __('View Sales Report Page') }}</strong>
-                    </a>
-                </div>
+
                 <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
                     <p>
                         Product Supplied Report
@@ -31,6 +22,16 @@
                         <i data-fa-symbol="layer-group" class="fa-solid fa-layer-group fa-3x"></i><svg class="icon">
                             <use xlink:href="#layer-group"></use>
                         </svg><strong class="font-small">{{ __('View Product Supplied Report') }}</strong>
+                    </a>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                    <p>
+                        Payment Report
+                    </p>
+                    <a href="{{route('admin.paymentsHistoryReport')}}" class="btn btn-lg btn-primary" role="button">
+                        <i data-fa-symbol="layer-group" class="fa-solid fa-layer-group fa-3x"></i><svg class="icon">
+                            <use xlink:href="#layer-group"></use>
+                        </svg><strong class="font-small">{{ __('View Payments Report') }}</strong>
                     </a>
                 </div>
             </div>

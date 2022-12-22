@@ -10,5 +10,10 @@ class SaleRepository{
         $user_sales=Sale::where(['user_id'=>Auth::user()->id])->sum('total');
            return  $user_sales;
     }
+
+    public function getSales(){
+
+        return Sale::with('addProduct')->where(['user_id'=>Auth::user()->id])->get();
+    }
 }
 

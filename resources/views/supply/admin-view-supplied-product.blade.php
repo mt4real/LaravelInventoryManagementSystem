@@ -32,7 +32,7 @@
                     <form action="{{ route('admin.archiveSuppliedPrd') }}" method="POST">
                         @csrf
                         @if ($view_supplied_products->count()>0)
-                        @canany(['archiveSuppliedProductAll','restoreArchivedProductSupplied'], App\Models\User::class);
+                        @canany(['archiveSuppliedProductAll'], App\Models\User::class);
 
                         <div class="row">
                             <div class="col-md-4">

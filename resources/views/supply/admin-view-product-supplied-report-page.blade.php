@@ -122,7 +122,6 @@
                                         <th>Supplied Address</th>
                                         <th>Total Amount</th>
                                         <th>Date Created</th>
-                                        <th>Date Updated</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -130,13 +129,12 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
 
-                                        <td>{{ ucwords(Auth::user()->name) }}</td>
+                                        <td>{{ ucwords($productsSuppliedRpt->user->name) }}</td>
                                         <td>{{ ucwords($productsSuppliedRpt->addProduct->product_name) }}</td>
                                         <td>{{ $productsSuppliedRpt->price }}</td>
                                         <td>{{ $productsSuppliedRpt->quantity}}</td>
                                         <td>{{ $productsSuppliedRpt->total_amount }}</td>
                                         <td>{{ $productsSuppliedRpt->created_at }}</td>
-                                        <td>{{ $productsSuppliedRpt->updated_at }}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

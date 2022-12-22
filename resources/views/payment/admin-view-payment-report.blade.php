@@ -6,7 +6,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-12 d-flex no-block align-items-center">
-                        <h1 class="page-title font-big">{{ __('View Sales Report') }}</h1>
+                        <h1 class="page-title font-big">{{ __('View Sales History Report') }}</h1>
                         <div class="ms-auto text-end">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -14,13 +14,12 @@
                                             href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a>
                                     </li>
                                     <li class="breadcrumb-item active" aria-current="page">
-                                        {{ __('View sales report ') }}
+                                        {{ __('View payment report ') }}
                                     </li>
                                 </ol>
                             </nav>
                         </div>
                     </div>
-
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 colxs-12 mt-5">
                     @include('layouts.utilities.user-daialog')
@@ -30,9 +29,8 @@
 
                 <div class="card rounded-3 border border-light">
                     <div class="card-body">
-                        @if ($salesReport->count() > 0)
-                            <form action="{{ route('admin.getSalesHistoryReport') }}" method="get">
-
+                        @if ($paymentsHistoryReport->count() > 0)
+                            <form action="{{ route('admin.getPaymentsHistoryReport') }}" method="get">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="start_date" class="mb-2">To:</label>
@@ -70,8 +68,8 @@
                                 <div class="col-md-6">
 
                                     <div class="d-grid mx-auto mt-4">
-                                        <button class="btn btn-primary btn-lg" id="salesReportPageBtn_pdf"
-                                        onclick="generateSalesReportPDF()">
+                                        <button class="btn btn-primary btn-lg" id="historyReportPageBtn_pdf"
+                                            onclick="generatePaymentsReportPDF()">
                                             <i data-fa-symbol="pdf" class="fa-regular fa-file-pdf fa-3x"></i><svg
                                                 class="icon">
                                                 <use xlink:href="#pdf"></use>
@@ -81,8 +79,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="d-grid mx-auto mt-4">
-                                        <button class="btn btn-primary btn-lg" id="salesReportPageBtn_excel"
-                                        onclick="generateSalesReportExcel()">
+                                        <button class="btn btn-primary btn-lg" id="historyReportPageBtn_excel" onclick="generatePaymentsReportExcel()">
                                             <i data-fa-symbol="excel" class="fa-regular fa-file-excel fa-3x"></i><svg
                                                 class="icon">
                                                 <use xlink:href="#excel"></use>
@@ -90,11 +87,12 @@
                                         </button>
                                     </div>
                                 </div>
+
                             </div>
-                        @endif
+
                         <div class="row">
                             <div class="col-md-12">
-                                <form action="{{ route('admin.salesReport') }}" method="get">
+                                <form action="{{ route('admin.paymentsHistoryReport') }}" method="get">
                                     <div class="d-grid mx-auto mt-4">
                                         <button class="btn btn-primary btn-lg">
                                             <i data-fa-symbol="repeat_solid" class="fa-solid fa-repeat fa-3x"></i><svg
@@ -106,38 +104,39 @@
                                 </form>
                             </div>
                         </div>
+                        @endif
                         <div class="table-responsive">
-                            <table id="view_salesReport_page" class="table table-bordered border rounded table-striped mt-3">
+                            <table id="view_paymentReport_page"
+                                class="table table-bordered border rounded table-striped mt-3">
                                 <thead>
                                     <tr>
                                         <th>S/N</th>
-                                        <th>#</th>
                                         <th>Sales Person</th>
-                                        <th>Product Name</th>
-                                        <th>Price</th>
-                                        <th>Quantity</th>
-                                        <th>Total Amount</th>
+                                        <th>Customer Name</th>
+                                        <th>Paid Amount</th>
+                                        <th>Sales Amount</th>
+                                        <th>Change Amount</th>
+                                        <th>Payment Type</th>
                                         <th>Date Created</th>
-                                        <th>Date Updated</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($salesReport as $index => $salesRpt)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
+                                    @foreach ($paymentsHistoryReport as $index => $paymentHistoryRpt)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
 
-                                        <td>{{ ucwords(Auth::user()->name) }}</td>
-                                        <td>{{ ucwords($salesRpt->addProduct->product_name) }}</td>
-                                        <td>{{ $salesRpt->price }}</td>
-                                        <td>{{ $salesRpt->quantity}}</td>
-                                        <td>{{ $salesRpt->total_amount }}</td>
-                                        <td>{{ $salesRpt->created_at }}</td>
-                                        <td>{{ $salesRpt->updated_at }}</td>
-                                    </tr>
-                                @endforeach
+                                            <td>{{ ucwords($paymentHistoryRpt->user->name)}}</td>
+                                            <td>{{ ucwords($paymentHistoryRpt->customer_name) }}</td>
+                                            <td>{{ $paymentHistoryRpt->paid_amount}}</td>
+                                            <td>{{ $paymentHistoryRpt->sales_amount}}</td>
+                                            <td>{{ $paymentHistoryRpt->change_amount}}</td>
+                                            <td>{{ $paymentHistoryRpt->payment_type}}</td>
+                                            <td>{{ $paymentHistoryRpt->created_at }}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
+
 
                         </div>
                         @include('layouts.utilities.general_modal')
@@ -150,7 +149,7 @@
     </main>
     @push('scripts')
         <script>
-            new simpleDatatables.DataTable("#view_salesReport_page", {})
+            new simpleDatatables.DataTable("#view_paymentReport_page", {})
         </script>
     @endpush
 @endsection

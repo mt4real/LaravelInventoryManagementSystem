@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Models\User;
+use FontLib\Table\Type\name;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,7 +150,7 @@ Route::prefix('backend')->group( function(){
         Route::post('/sales-pos',[AdminController::class,'salesPosStore']);
 
         //get sales data
-        Route::get('/get-sales-data',[AdminController::class,'getSalesPos'])->name('getSalesPos');
+        Route::get('/get-sales-data',[AdminController::class,'getSalesPaymentPos'])->name('getSalesPos');
 
         //view category route
         Route::get('/view-category',[AdminController::class,'viewCategory'])->name('viewCategory');
@@ -221,11 +222,31 @@ Route::prefix('backend')->group( function(){
         Route::match(['post','get'],'/get-sales-history-report',[AdminController::class,'getSalesHistoryReport'])
         ->name('getSalesHistoryReport');
 
-        //sales history report route
-        Route::match(['post','get'],'/sales-report',[AdminController::class,'salesReport'])
-        ->name('salesReport');
-        Route::match(['post','get'],'/get-sales-report',[AdminController::class,'getSalesReport'])
-        ->name('getSalesReport');
+        //archive sales history route
+        Route::post('/archive-sales-history-all',[AdminController::class,"archiveSalesHistoryAll"])
+        ->can('archiveSalesHistoryAll', User::class)->name('archiveSalesHistoryAll');
+
+        //payments history report route
+        Route::match(['post','get'],'/payment-report',[AdminController::class,'paymentsHistoryReport'])
+        ->name('paymentsHistoryReport')->can('paymentsHistoryReport', User::class);
+        Route::match(['post','get'],'/get-payment-report',[AdminController::class,'getPaymentsHistoryReport'])
+        ->name('getPaymentsHistoryReport')->can('getPaymentsHistoryReport', User::class);
+
+        //view payments route
+        Route::get('/view-payments', [AdminController::class, 'viewPayments'])
+        ->name('viewPayments')->can('viewPayments', User::class);
+
+         //multiple archived payments route
+         Route::match(['post','get'],'/archive-payment-all',[AdminController::class,'archivePaymentsAll'])
+         ->name('archivePaymentsAll')->can('archivePaymentsAll', User::class);
+
+         //multiple restore supplied product route
+         Route::patch('/restore-payments-all',[AdminController::class,'restoreArchivedPaymentsAll'])
+        ->can('restoreArchivedPaymentsAll', User::all())->name('restorePaymentAll');
+
+         //multiple delete payment permanently route
+         Route::delete('delete-payment',[AdminController::class,'deletePaymentPermanentlyAll'])
+         ->can('deletePaymentPermanentlyAll', User::class)->name('deletePayment');
 
         //product supplied report route
         Route::match(['post','get'],'/supplied-products-report',[AdminController::class,'productsSuppliedReport'])
@@ -242,6 +263,18 @@ Route::prefix('backend')->group( function(){
 
         //print receipt route
         Route::get('/print-receipt',[AdminController::class,'printReceipt'])->name('receipt');
+
+        //delete sales
+        Route::delete('/delete-sale',[AdminController::class, 'deleteSales'])->name('deleteSales');
+
+        //get sales payment route
+        Route::get('/get-sales-payment-data',[AdminController::class,'getSalesPayment'])->name('getSalesPayment');
+
+        //delete sales data route delete-sales-single-data
+        Route::delete('delete-sales-data',[AdminController::class,'deleteUserSalesData'])->name('deleteUserSalesData');
+
+        //delete-sales-single-data
+        Route::delete('delete-sales-single-data',[AdminController::class,'deleteUserSalesSingleData'])->name('deleteUserSalesSingleData');
     });
 
 });

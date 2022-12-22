@@ -43,8 +43,8 @@ function generateSalesHistoryReportExcel(){
 
 
 
-//sales PDF download
-function generateSalesReportPDF() {
+//payment PDF download
+function generatePaymentsReportPDF() {
     var doc = new jsPDF('p', 'pt', 'letter');
     var htmlstring = '';
     var tempVarToCheckPageHeight = 0;
@@ -52,7 +52,7 @@ function generateSalesReportPDF() {
     pageHeight = doc.internal.pageSize.height;
     specialElementHandlers = {
         // element with id of "bypass" - jQuery style selector
-        '#bypassSales': function(element, renderer) {
+        '#bypassPayments': function(element, renderer) {
             // true = "handled elsewhere, bypass text extraction"
             return true
         }
@@ -68,19 +68,19 @@ function generateSalesReportPDF() {
     doc.setLineWidth(2);
     doc.text(200, y = y + 10, "Sales Report Page");
     doc.autoTable({
-        html: '#view_salesReport_page',
+        html: '#view_PaymentsReport_page',
 
     })
-    doc.save('sales_report.pdf');
+    doc.save('Payment_report.pdf');
 }
 
-//Sales Excel download
-function generateSalesReportExcel(){
-    var salesReportExcel = new Table2Excel('#view_salesReport_page', {
-        filename: "sales_report"
+//Payments Excel download
+function generatePaymentsReportExcel(){
+    var paymentsReportExcel = new Table2Excel('#view_PaymentsReport_page', {
+        filename: "payment_report"
     });
 
-    salesReportExcel.export();
+    paymentsReportExcel.export();
 }
 
 

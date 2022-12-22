@@ -89,7 +89,7 @@
                                 </div>
 
                             </div>
-                        @endif
+
                         <div class="row">
                             <div class="col-md-12">
                                 <form action="{{ route('admin.salesHistoryReport') }}" method="get">
@@ -104,6 +104,7 @@
                                 </form>
                             </div>
                         </div>
+                        @endif
                         <div class="table-responsive">
                             <table id="view_salesHistoryReport_page"
                                 class="table table-bordered border rounded table-striped mt-3">
@@ -117,7 +118,6 @@
                                         <th>Sales Price</th>
                                         <th>Total Amount</th>
                                         <th>Date Created</th>
-                                        <th>Date Updated</th>
 
                                     </tr>
                                 </thead>
@@ -126,14 +126,13 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
 
-                                            <td>{{ ucwords(Auth::user()->name) }}</td>
+                                            <td>{{ ucwords($salesHistoryRpt->user->name)}}</td>
                                             <td>{{ ucwords($salesHistoryRpt->addProduct->product_name) }}</td>
                                             <td>{{ $salesHistoryRpt->quantity_sales }}</td>
                                             <td>{{ $salesHistoryRpt->quantity_remain }}</td>
                                             <td>{{ $salesHistoryRpt->sales_price }}</td>
                                             <td>{{ $salesHistoryRpt->total_amount }}</td>
                                             <td>{{ $salesHistoryRpt->created_at }}</td>
-                                            <td>{{ $salesHistoryRpt->updated_at }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

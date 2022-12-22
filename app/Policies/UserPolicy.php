@@ -141,4 +141,45 @@ class UserPolicy
     public function priceEditStore(){
         return $this->user->isSuperAdmin();
     }
+
+    public function salesHistoryReport(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function getSalesHistoryReport(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function productsSuppliedReport(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function getProductsSuppliedReport(){
+        return $this->user->isSuperAdmin();
+    }
+    public function viewPayments(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function archivePaymentsAll(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function restoreArchivedPaymentsAll(){
+        return $this->user->isSuperAdmin();
+    }
+    public function deletePaymentPermanentlyAll(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function paymentsHistoryReport(){
+        return $this->user->isSuperAdmin();
+    }
+    public function getPaymentsHistoryReport(){
+        return $this->user->isSuperAdmin();
+    }
+
+    public function archiveSalesHistoryAll(){
+        return $this->user->isSuperAdmin();
+    }
 }

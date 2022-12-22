@@ -183,9 +183,9 @@ $(document).ready(function () {
         }
     });
 
-    //view supplied restore product
+    //view archived supplied restore product
 
-    $(".suppliedArchiveProduct_restoreAll").on("click", function () {
+    $(".paymentsArchive_restoreAll").on("click", function () {
         var idsArr = [];
         $(".suppliedArchiveProductCheck_checkbox:checked").each(function () {
             idsArr.push($(this).attr("data-id"));
@@ -236,6 +236,8 @@ $(document).ready(function () {
         }
     });
 });
+
+
 
 
 
@@ -318,6 +320,9 @@ $(document).ready(function () {
 
 });
 
+
+
+
 //view products
 // $(document).ready(function () {
 //     $("#archiveProduct_checkAll").on("click", function () {
@@ -380,6 +385,7 @@ $(document).ready(function () {
 // });
 
 
+
 //view supplied products
 $(document).ready(function () {
     $("#suppliedProductCheck_all").on("click", function () {
@@ -422,4 +428,230 @@ $(document).ready(function () {
     });
 });
 
+
+
+
+
+//view archived payments restored
+
+$(document).ready(function(){
+    $(".paymentsArchive_restoreAll").on("click", function () {
+        var idsArr = [];
+        $(".paymentsArchivedCheck_checkbox:checked").each(function () {
+            idsArr.push($(this).attr("data-id"));
+        });
+
+        if (idsArr.length <= 0) {
+            alert("Select at least one payment record(s) to restore");
+        } else {
+            if (confirm("Restore the selected payment record(s)")) {
+                var strIds = idsArr.join();
+                $.ajax({
+                    type: "PATCH",
+                    url: "/backend/archive-payment-all",
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                            "content"
+                        ),
+                    },
+                    data: "ids=" + strIds,
+                    success: function (data) {
+                        if (data.status === true) {
+                            $(
+                                ".suppliedArchiveProductCheck_checkbox:checked"
+                            ).each(function () {
+                                $(this).parents("tr").remove();
+                            });
+                            $("#hideAlert").show();
+                            $("#hideAlert").text(
+                                "The Selected Supplied Product(s) Successfully Restored"
+                            );
+                            setTimeout(() => {
+                                $("#hideAlert").hide();
+                            }, 3000);
+                        } else {
+                            $("#hideAlert").show();
+                            $("#hideAlert").text("Something went wrong");
+                            $("#hideALert").css("background", "red");
+                            setTimeout(() => {
+                                $("#hideAlert").hide();
+                            }, 3000);
+                        }
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    },
+                });
+            }
+        }
+    });
+    });
+
+
+
+    //view archived payments
+$(document).ready(function () {
+    $("#Payments_all").on("click", function () {
+        if ($(this).is(":checked", true)) {
+            $("paymentsCheck_checkbox").prop("checked", true);
+        } else {
+            $("paymentsCheck_checkbox").prop("checked", false);
+        }
+    });
+    $("paymentsCheck_checkbox").on("click", function () {
+        if (
+            $("paymentsCheck_checkbox:checked").length ===
+            $("paymentsCheck_checkbox").length
+        ) {
+            $("#paymentsCheck_all").prop("checked", true);
+        } else {
+            $("#paymentsCheck_all").prop("checked", false);
+        }
+    });
+    $(".payments_archiveAll").on("click", function () {
+        var idsArrProduct = [];
+        $("paymentsCheck_checkbox:checked").each(function () {
+            idsArrProduct.push($(this).attr("data-id"));
+        });
+
+        if (idsArrProduct.length <= 0) {
+            alert("Select at least one payment record to archive");
+        } else {
+            var myModal = new bootstrap.Modal(
+                document.getElementById(
+                    "adminArchivedMultiplePaymentsModal"
+                ),
+                {
+                    keyboard: true,
+                    backdrop: "static",
+                }
+            );
+            myModal.show();
+        }
+    });
+});
+
+
+
+//multiple delete payment record
+$(document).ready(function () {
+    $("#payment_checkAll").on("click", function () {
+        if ($(this).is(":checked", true)) {
+            $(".paymentsArchivedCheck_checkbox").prop("checked", true);
+        } else {
+            $(".paymentsArchivedCheck_checkbox").prop("checked", false);
+        }
+    });
+    $(".paymentsArchivedCheck_checkbox").on("click", function () {
+        if (
+            $(".paymentsArchivedCheck_checkbox:checked").length ===
+            $(".paymentsArchivedCheck_checkbox").length
+        ) {
+            $("#payment_checkAll").prop("checked", true);
+        } else {
+            $("#payment_checkAll").prop("checked", false);
+        }
+    });
+
+    $(".paymentArchive_deleteAll").on("click", function () {
+        var idsArr = [];
+        $(".paymentsArchivedCheck_checkbox:checked").each(function () {
+            idsArr.push($(this).attr("data-id"));
+        });
+
+        if (idsArr.length <= 0) {
+            alert("Select at least one payment record(s) to delete");
+        } else {
+            if (
+                confirm(
+                    "Are you sure, you want to delete the selected  payment record(s)"
+                )
+            ) {
+                var strIds = idsArr.join();
+                $.ajax({
+                    type: "DELETE",
+                    url: "/backend/delete-payment",
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                            "content"
+                        ),
+                    },
+                    data: "ids=" + strIds,
+                    success: function (data) {
+                        if (data.status === true) {
+                            $(
+                                ".paymentsArchivedCheck_checkbox:checked"
+                            ).each(function () {
+                                $(this).parents("tr").remove();
+                            });
+                            $("#hideAlert").show();
+                            $("#hideAlert").text(
+                                "The Selected  Payment record(s) Successfully Deleted"
+                            );
+                            setTimeout(() => {
+                                $("#hideAlert").hide();
+                            }, 3000);
+                        } else {
+                            $("#hideAlert").show();
+                            $("#hideAlert").text("Something went wrong");
+                            $("#hideALert").css("background", "red");
+                            setTimeout(() => {
+                                $("#hideAlert").hide();
+                            }, 3000);
+                        }
+                    },
+                    error: function (data) {
+                        alert(data.responseText);
+                    },
+                });
+            }
+        }
+    });
+
+
+});
+
+
+
+//view archived sales history
+$(document).ready(function () {
+    $("#salesHistoryCheck_all").on("click", function () {
+        if ($(this).is(":checked", true)) {
+            $("salesHistoryCheck_checkbox").prop("checked", true);
+        } else {
+            $("salesHistoryCheck_checkbox").prop("checked", false);
+        }
+    });
+    $("salesHistoryCheck_checkbox").on("click", function () {
+        if (
+            $("salesHistoryCheck_checkbox:checked").length ===
+            $("salesHistoryCheck_checkbox").length
+        ) {
+            $("#salesHistoryCheck_all").prop("checked", true);
+        } else {
+            $("#salesHistoryCheck_all").prop("checked", false);
+        }
+    });
+    $(".salesHistory_archiveAll").on("click", function () {
+        var idsArrSalesHistory= [];
+        $("salesHistoryCheck_checkbox:checked").each(function () {
+            idsArrSalesHistory.push($(this).attr("data-id"));
+        });
+
+        if (idsArrSalesHistory.length <= 0) {
+            alert("Select at least one sales history record to archive");
+        } else {
+            var myModal = new bootstrap.Modal(
+                document.getElementById(
+                    "adminArchivedMultipleSalesHistoryModal"
+                ),
+                {
+                    keyboard: true,
+                    backdrop: "static",
+                }
+            );
+            myModal.show();
+        }
+    });
+});
 

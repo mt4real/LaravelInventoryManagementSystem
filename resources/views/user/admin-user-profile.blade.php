@@ -30,7 +30,7 @@
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDropdown">
                                   <li><a class="dropdown-item"  data-bs-target="#userProfileModal" data-bs-toggle="modal">Upload Image</a></li>
-                                  <li><a class="dropdown-item" data-bs-target="#userProfileModal" data-bs-toggle="modal">Use Avatar</a></li>
+                                  <li><a class="dropdown-item" data-bs-target="#userProfileAvatarModal" data-bs-toggle="modal">Use Avatar</a></li>
                                 </ul>
                               </div>
                         </div>
@@ -65,7 +65,7 @@
                                         aria-label="close"></button>
                                 </div>
                                 <form id="updateUserProfileImage" action="{{ route('admin.updateUserProfileImage') }}" method="post"
-                                    enctype="multipart/form-data" id="updateUserProfileImage"
+                                    enctype="multipart/form-data"
                                     accept="image/png, image/gif, image/jpeg,image/bmp,image/webp">
                                     @csrf
 
@@ -91,16 +91,16 @@
 
 
                 <!---upload avatar modal-->
-                    <div class="modal fade" id="userAvtarModal" tabindex="-1" aria-labelledby="userAvatarModalLabel"
+                    <div class="modal fade" id="userProfileAvatarModal" tabindex="-1" aria-labelledby="userProfileAvatarModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="userAvatarModalLabel">Upload Avatar</h5>
+                                    <h5 class="modal-title" id="userProfileAvatarModalLabel">Upload Avatar</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="close"></button>
                                 </div>
-                                <form id="updateUserAvatar" 
+                                <form id="updateUserAvatar" action="{{route('admin.userAvatar')}}" enctype="multipart/form-data"
                                     accept="image/png">
                                     @csrf
 

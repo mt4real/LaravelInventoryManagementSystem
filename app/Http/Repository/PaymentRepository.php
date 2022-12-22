@@ -2,13 +2,19 @@
 namespace App\Http\Repository;
 
 use App\Models\Payment;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentRepository{
 
     public function getUserPayment(){
-        $user_payment=Payment::where(['user_id'=>Auth::user()->id])->get();
-           return  $user_payment;
+        return Payment::where(['user_id'=>Auth::user()->id])->get();
+
+    }
+
+    public function getUserSalesPayment(){
+        return Payment::where(['id'=>Session::get('sales_sessionId')])->first();
+
     }
 }
 
