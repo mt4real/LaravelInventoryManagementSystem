@@ -34,14 +34,13 @@ use Exception;
 
 class AdminController extends Controller
 {
+    public DashboardRepository $dashboardRepository;
 
-    public function __construct(DashboardRepository $dashboardRepository)
+    public function __construct()
     {
         $this->middleware(['auth', 'verified'], ['except' => [
             'indexPageCreate', 'indexPageStore', 'companyWelcome'
         ]]);
-
-        return $this->dashboardRepository=$dashboardRepository;
 
     }
 

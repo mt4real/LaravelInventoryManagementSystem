@@ -7,6 +7,8 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
 {
+    public User $user;
+
     use HandlesAuthorization;
 
     /**
@@ -14,9 +16,9 @@ class UserPolicy
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($user)
     {
-          return $this->user=$user;
+           $this->user=$user;
     }
 
     public function viewUsers()
