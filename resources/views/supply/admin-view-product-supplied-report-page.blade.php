@@ -128,12 +128,16 @@
                                     @foreach ($productsSuppliedReport as $index => $productsSuppliedRpt)
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
-
+                                        <td>{{ $productsSuppliedRpt->company_supplied }}</td>
+                                        <td>{{ $productsSuppliedRpt->brand}}</td>
                                         <td>{{ ucwords($productsSuppliedRpt->user->name) }}</td>
-                                        <td>{{ ucwords($productsSuppliedRpt->addProduct->product_name) }}</td>
-                                        <td>{{ $productsSuppliedRpt->price }}</td>
-                                        <td>{{ $productsSuppliedRpt->quantity}}</td>
-                                        <td>{{ $productsSuppliedRpt->total_amount }}</td>
+                                        <td>{{ $productsSuppliedRpt->product_supplied}}</td>
+                                        <td>{{ $productsSuppliedRpt->phone_supplied}}</td>
+                                        <td>{{ $productsSuppliedRpt->quantity_supplied}}</td>
+                                        <td>{{ $productsSuppliedRpt->unit_price }}</td>
+                                        <td>{{ $productsSuppliedRpt->supplied_receipt}}</td>
+                                        <td>{{ $productsSuppliedRpt->address_supplied}}</td>
+                                        <td>{{ $productsSuppliedRpt->total_amount_supplied }}</td>
                                         <td>{{ $productsSuppliedRpt->created_at }}</td>
                                     </tr>
                                 @endforeach

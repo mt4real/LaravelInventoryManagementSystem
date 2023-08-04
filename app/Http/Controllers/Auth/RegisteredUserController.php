@@ -21,7 +21,7 @@ class RegisteredUserController extends Controller
      */
     public function create()
     {
-        return view('adminAuth.admin-reg');
+        return view('auth.register');
     }
 
 
@@ -42,19 +42,19 @@ class RegisteredUserController extends Controller
             'confirmation_password'=>['required',Password::default()],
         ]);
 
-        $role_id=Role::where(['role_name'=>Role::SUPER_ADMIN])->first();
+        //$role_id=Role::where(['role_name'=>Role::SUPER_ADMIN])->first();
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id'=>$role_id->id,
+            //'role_id'=>$role_id->id,
         ]);
 
         event(new Registered($user));
 
        Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME_ADMIN);
+        return redirect(RouteServiceProvider::HOME);
     }
     }

@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Providers;
+
+use App\Models\Admin;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
-use App\Policies\UserPolicy;
-use App\Models\User;
+use App\Policies\AdminPolicy;
+
 
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -20,7 +22,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        User::class=>UserPolicy::class,
+        
+        Admin::class=>AdminPolicy::class
     ];
 
     /**
@@ -49,6 +52,7 @@ class AuthServiceProvider extends ServiceProvider
 
 
         });
+
 
     }
 }

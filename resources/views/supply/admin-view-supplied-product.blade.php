@@ -32,7 +32,7 @@
                     <form action="{{ route('admin.archiveSuppliedPrd') }}" method="POST">
                         @csrf
                         @if ($view_supplied_products->count()>0)
-                        @canany(['archiveSuppliedProductAll'], App\Models\User::class);
+                        @canany(['archiveSuppliedProductAll'], App\Models\Admin::class);
 
                         <div class="row">
                             <div class="col-md-4">
@@ -99,7 +99,7 @@
 
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="edit supplied product">
-                                                    @canany(['editSuppliedProductCreate'], App\Models\User::class)
+                                                    @canany(['editSuppliedProductCreate','editSuppliedProductStore'], App\Models\Admin::class)
                                                     <a href="{{ URL::signedRoute('admin.editSuppliedProduct', ['id' => $view_supplied_product->id]) }}"
                                                         role="button" class="btn btn-primary delete-all"><i
                                                             class="fas fa-edit"></i>Edit</a>

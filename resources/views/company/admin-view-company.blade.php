@@ -50,11 +50,18 @@
                                         <td>{{ $showC->updated_at }}</td>
 
                                         <td>
+
+
+                                            @if (Auth::guard('admin')->user()->can('editCompanyCreate', App\Models\Admin::class))
+                                            @if (Auth::guard('admin')->user()->can('editCompanyStore', App\Models\Admin::class))
+
                                             <div class="btn-group" role="group" aria-label="edit company">
                                                 <a href="{{ URL::signedRoute('admin.editCompany', ['id' => $showC->id]) }}"
                                                     role="button" class="btn btn-primary"><i class="fas fa-edit"></i>Edit</a>
 
                                             </div>
+                                            @endif
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

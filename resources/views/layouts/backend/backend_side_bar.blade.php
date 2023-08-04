@@ -17,8 +17,8 @@
         <div class="sidebar-user">
             <div class="d-flex justify-content-center">
                 <div class="flex-shrink-0">
-                    @if(empty(Auth::user()->image))
-                    <img src="{{ Avatar::create(ucwords(Auth::user()->name))->toBase64() }}" class="rounded-circle"
+                    @if(empty(Auth::guard('admin')->user()->image))
+                    <img src="{{ Avatar::create(ucwords(Auth::guard('admin')->user()->name))->toBase64() }}" class="rounded-circle"
                             width="31"  alt="Profile avatar"/>
 
                     </a>
@@ -26,14 +26,14 @@
                     <a class=" nav-link dropdown-toggle text-muted
                     waves-effect waves-dark pro-pic" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 
-                    <img src="{{ asset(config('app.userImage').Auth::user()->image) }}"  class="rounded-circle"
+                    <img src="{{ asset(config('app.userImage').Auth::guard('admin')->user()->image) }}"  class="rounded-circle"
                             width="31" alt="Profile image" />
                             @endif
                     </a>
                 </div>
                 <div class="flex-grow-1 ps-2">
                     <a class="sidebar-user-title dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        {{ucwords(Auth::user()->name)}}
+                        {{ucwords(Auth::guard('admin')->user()->name)}}
                     </a>
                     <div class="dropdown-menu dropdown-menu-start">
                         <a class="dropdown-item" href="{{route('admin.userProfile')}}"><i class="align-middle me-1" data-feather="user"></i> Profile</a>
@@ -45,7 +45,7 @@
                         <a class="dropdown-item" href="{{route('logout')}}"><i class="fa fa-power-off me-2"></i>Log out</a>
                     </div>
 
-                    <div class="sidebar-user-subtitle">{{Auth::user()->role->role_name}}</div>
+                    <div class="sidebar-user-subtitle">{{Auth::guard('admin')->user()->role->role_name}}</div>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
                 </ul>
             </li>
 
-            @canany(['addUserCreate','viewUsers'], App\Models\User::class)
+            @canany(['addUserView','addUserSave','viewUsers'], App\Models\Admin::class)
             <li class="sidebar-item">
 
                 <a data-bs-target="#users" data-bs-toggle="collapse" class="sidebar-link collapsed">
@@ -89,7 +89,7 @@
                     <i class="align-middle" data-feather="layers"></i> <span class="align-middle">Category</span>
                 </a>
                 <ul id="categories" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
-                    @canany(['addCategoryCreate'], App\Models\User::class)
+                    @canany(['addCategoryCreate'], App\Models\Admin::class)
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.addCategory')}}">Add category</a></li>
                     @endcanany
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.viewCategory')}}">View Categories</a></li>
@@ -101,7 +101,7 @@
                     <i class="align-middle" data-feather="speaker"></i> <span class="align-middle">Product</span>
                 </a>
                 <ul id="product" class="sidebar-dropdown list-unstyled collapse " data-bs-parent="#sidebar">
-                    @canany(['productCreate'], App\Models\User::class)
+                    @canany(['productCreate','productStore'], App\Models\Admin::class)
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.addProduct')}}">Add product</a></li>
                     @endcanany
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.viewProducts')}}">View product(s)</a></li>
@@ -125,7 +125,7 @@
                     <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">Supply</span>
                 </a>
                 <ul id="supply" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    @canany(['addSuppliedProductCreate'], App\Models\User::class)
+                    @canany(['addSuppliedProductCreate','addSuppliedProductStore'], App\Models\Admin::class)
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.addSuppliedProduct')}}">Add supplied product</a></li>
                     @endcanany
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.viewSuppliedProducts')}}">View supplied product(s)</a></li>
@@ -133,7 +133,7 @@
 
                 </ul>
             </li>
-            <li class="sidebar-item">
+            {{-- <li class="sidebar-item">
                 <a data-bs-target="#sales" data-bs-toggle="collapse" class="sidebar-link collapsed">
                     <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">Sales</span>
                 </a>
@@ -149,7 +149,7 @@
                     <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">Payments</span>
                 </a>
                 <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    @canany(['viewPayments'], App\Models\User::class)
+                    @canany(['viewPayments'], App\Models\Admin::class)
                     <li class="sidebar-item"><a class="sidebar-link" href="{{route('admin.viewPayments')}}">View Payments</a></li>
                     @endcanany
 
@@ -160,7 +160,7 @@
         </ul>
         @canany(['salesHistoryReport','getSalesHistoryReport',
         'productsSuppliedReport','getProductsSuppliedReport',
-        'paymentsHistoryReport','getPaymentsHistoryReport'], App\Models\User::class)
+        'paymentsHistoryReport','getPaymentsHistoryReport'], App\Models\Admin::class)
         <div class="sidebar-cta">
             <div class="sidebar-cta-content">
                 <strong class="d-inline-block mb-2">Sales and Payment Report</strong>
@@ -174,5 +174,6 @@
             </div>
         </div>
         @endcanany
+        --}}
     </div>
 </nav>

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\AdminAuth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-class VerifyEmailController extends Controller
+class AdminConfirmEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
@@ -17,14 +17,14 @@ class VerifyEmailController extends Controller
      */
     public function __invoke(EmailVerificationRequest $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        if ($request->user("admin")->hasVerifiedEmail()) {
+            return redirect()->intended(RouteServiceProvider::HOME_ADMIN.'?verified=1');
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        if ($request->user("admin")->markEmailAsVerified()) {
+            event(new Verified($request->user("admin")));
         }
 
-        return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        return redirect()->intended(RouteServiceProvider::HOME_ADMIN.'?verified=1');
     }
 }

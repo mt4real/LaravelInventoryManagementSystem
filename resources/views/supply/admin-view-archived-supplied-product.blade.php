@@ -35,7 +35,7 @@
             <div class="card rounded-3 border border-light">
                 <div class="card-body">
                     @if($archived_suppliedProducts->count()>0)
-                    @canany(['restoreSuppliedProductAll','deleteSuppliedProductPermanentlyAll'], App\Models\User::class)
+                    @canany(['restoreArchivedProductSuppliedAll','deleteSuppliedProductPermanentlyAll'], App\Models\Admin::class)
                     <div class="row">
 
                         <div class="col-md-4">
@@ -102,8 +102,8 @@
                                         <td>{{ $archived_suppliedProduct->product_supplied }}</td>
                                         <td>{{ $archived_suppliedProduct->quantity_supplied }}</td>
                                         <td>{{ $archived_suppliedProduct->unit_price }}</td>
-                                        <td>{{ $archived_suppliedProduct->total_amount_supplied }}</td>
-                                        <td>{{ ucwords(Auth::user()->name) }}</td>
+                                        <td>{{ $archived_suppliedProduct->total_amount_supplied}}</td>
+                                        <td>{{ucwords(Auth::guard('admin')->user()->name)}}</td>
                                         <td>{{ $archived_suppliedProduct->deleted_at }}</td>
                                         <td>
                                             <div class="btn-group" role="group" aria-label="edit supplied product">

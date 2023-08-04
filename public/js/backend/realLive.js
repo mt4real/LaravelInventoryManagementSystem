@@ -47,6 +47,7 @@ $("#adminUserRegForm").on("submit", function (event) {
             }
         })
         .fail(function (response) {
+            console.log(response)
             $("[data-ajax-input]").removeClass("is-invalid");
             $("[data-ajax-feedback]").html("").removeClass("d-block");
             if (response.responseJSON.hasOwnProperty("errors")) {
@@ -337,6 +338,7 @@ $(document).ready(function () {
                 }
             })
             .fail(function (response) {
+                console.log(response)
                 $("[data-ajax-input]").removeClass("is-invalid");
                 $("[data-ajax-feedback]").html("").removeClass("d-block");
                 if (response.responseJSON.hasOwnProperty("errors")) {
@@ -569,398 +571,398 @@ $(document).ready(function () {
 
 /* manage sales*/
 
-$(document).ready(function () {
-    const SALES_TABLE_BODY_DATA = $("#salesPOSDataBody");
+// $(document).ready(function () {
+//     const SALES_TABLE_BODY_DATA = $("#salesPOSDataBody");
 
-    // hide and show make sales payment button
-    var makesSalesPaymentButtonModal =
-        document.getElementById("make_sales_btn");
+//     // hide and show make sales payment button
+//     var makesSalesPaymentButtonModal =
+//         document.getElementById("make_sales_btn");
 
-    var i = 1;
-    $.get("/backend/get-sales-data", function (response) {
-        var html = "";
-        var salesDataBody = SALES_TABLE_BODY_DATA.html("");
+//     var i = 1;
+//     $.get("/backend/get-sales-data", function (response) {
+//         var html = "";
+//         var salesDataBody = SALES_TABLE_BODY_DATA.html("");
 
-        $.each(response.salesData, function (index, val) {
-            if (document.querySelectorAll("#view_sales tbody").length === 0) {
-                makesSalesPaymentButtonModal.style.display = "none";
-            } else if (
-                document.querySelectorAll("#view_sales tbody").length !== 0
-            ) {
-                makesSalesPaymentButtonModal.style.display = "block";
-            }
-            html = "<tr>";
-            html += "<td>" + `${index + 1}` + "</td>";
-            html += "<td>" + val.add_product.product_name + "</td>";
-            html += "<td>" + val.price + "</td>";
-            html += "<td>" + val.quantity + "</td>";
-            html += "<td>" + val.total + "</td>";
-            html +=
-                +"<button type='submit' id='btn_salesDelete' data-id='" +
-                `${val.id}` +
-                "'  class='btn btn-danger btn-lg'>Remove</button>" +
-                "</td>";
-            html += "</tr>";
+//         $.each(response.salesData, function (index, val) {
+//             if (document.querySelectorAll("#view_sales tbody").length === 0) {
+//                 makesSalesPaymentButtonModal.style.display = "none";
+//             } else if (
+//                 document.querySelectorAll("#view_sales tbody").length !== 0
+//             ) {
+//                 makesSalesPaymentButtonModal.style.display = "block";
+//             }
+//             html = "<tr>";
+//             html += "<td>" + `${index + 1}` + "</td>";
+//             html += "<td>" + val.add_product.product_name + "</td>";
+//             html += "<td>" + val.price + "</td>";
+//             html += "<td>" + val.quantity + "</td>";
+//             html += "<td>" + val.total + "</td>";
+//             html +=
+//                 +"<button type='submit' id='btn_salesDelete' data-id='" +
+//                 `${val.id}` +
+//                 "'  class='btn btn-danger btn-lg'>Remove</button>" +
+//                 "</td>";
+//             html += "</tr>";
 
-            salesDataBody.append(html);
-            $("#total_sales").text(response.grandTotal);
-            $("#payment_total").text(response.grandTotal);
-        });
-    });
+//             salesDataBody.append(html);
+//             $("#total_sales").text(response.grandTotal);
+//             $("#payment_total").text(response.grandTotal);
+//         });
+//     });
 
-    $("#salesPOS").on("submit", function () {
-        var POSForm = $(this).closest("form");
-        $.ajax({
-            url: "/backend/sales-pos",
-            method: "POST",
-            data: POSForm.serialize(),
-            success: function (response) {
-                $.each(response.salesData, function (index, val) {
-                    if (
-                        document.querySelectorAll("#view_sales tbody")
-                            .length === 0
-                    ) {
-                        makesSalesPaymentButtonModal.style.display = "none";
-                    } else if (
-                        document.querySelectorAll("#view_sales tbody")
-                            .length !== 0
-                    ) {
-                        makesSalesPaymentButtonModal.style.display = "block";
-                    }
+//     $("#salesPOS").on("submit", function () {
+//         var POSForm = $(this).closest("form");
+//         $.ajax({
+//             url: "/backend/sales-pos",
+//             method: "POST",
+//             data: POSForm.serialize(),
+//             success: function (response) {
+//                 $.each(response.salesData, function (index, val) {
+//                     if (
+//                         document.querySelectorAll("#view_sales tbody")
+//                             .length === 0
+//                     ) {
+//                         makesSalesPaymentButtonModal.style.display = "none";
+//                     } else if (
+//                         document.querySelectorAll("#view_sales tbody")
+//                             .length !== 0
+//                     ) {
+//                         makesSalesPaymentButtonModal.style.display = "block";
+//                     }
 
-                    var html = "";
-                    var salesDataBody = $("#salesPOSDataBody").html("");
+//                     var html = "";
+//                     var salesDataBody = $("#salesPOSDataBody").html("");
 
-                    html = $(
-                        "<tr><td>" +
-                            `${index + 1}` +
-                            "</td><td>" +
-                            val.add_product.product_name +
-                            "</td><td>" +
-                            val.quantity +
-                            "</td><td>" +
-                            val.price +
-                            "</td><td>" +
-                            val.total +
-                            "</td><td>" +
-                            "<button type='submit' id='btn_salesDelete' data-id='" +
-                            `${val.id}` +
-                            "'  class='btn btn-danger btn-lg'>Remove</button>" +
-                            "</td></tr>"
-                    );
+//                     html = $(
+//                         "<tr><td>" +
+//                             `${index + 1}` +
+//                             "</td><td>" +
+//                             val.add_product.product_name +
+//                             "</td><td>" +
+//                             val.quantity +
+//                             "</td><td>" +
+//                             val.price +
+//                             "</td><td>" +
+//                             val.total +
+//                             "</td><td>" +
+//                             "<button type='submit' id='btn_salesDelete' data-id='" +
+//                             `${val.id}` +
+//                             "'  class='btn btn-danger btn-lg'>Remove</button>" +
+//                             "</td></tr>"
+//                     );
 
-                    salesDataBody.append(html);
-                    $("#total_sales").text(response.grandTotal);
-                    $("#payment_total").text(response.grandTotal);
-                    $("#salesPOS")[0].reset();
-                });
+//                     salesDataBody.append(html);
+//                     $("#total_sales").text(response.grandTotal);
+//                     $("#payment_total").text(response.grandTotal);
+//                     $("#salesPOS")[0].reset();
+//                 });
 
-                if (response.lowQuantity) {
-                    var myModal = new bootstrap.Modal(
-                        document.getElementById("easySolutionModal"),
-                        {
-                            keyboard: true,
-                            backdrop: "static",
-                        }
-                    );
-                    var modalTitle = document.querySelector(".modal-title");
-                    var modalBody = document.querySelector(".modal-body");
-                    modalTitle.textContent = "Low Product Quantity";
-                    modalBody.textContent = `${response.lowQuantity}`;
-                    myModal.show();
-                }
+//                 if (response.lowQuantity) {
+//                     var myModal = new bootstrap.Modal(
+//                         document.getElementById("easySolutionModal"),
+//                         {
+//                             keyboard: true,
+//                             backdrop: "static",
+//                         }
+//                     );
+//                     var modalTitle = document.querySelector(".modal-title");
+//                     var modalBody = document.querySelector(".modal-body");
+//                     modalTitle.textContent = "Low Product Quantity";
+//                     modalBody.textContent = `${response.lowQuantity}`;
+//                     myModal.show();
+//                 }
 
-                if (response.productInactive) {
-                    var myModal = new bootstrap.Modal(
-                        document.getElementById("easySolutionModal"),
-                        {
-                            keyboard: true,
-                            backdrop: "static",
-                        }
-                    );
-                    var modalTitle = document.querySelector(".modal-title");
-                    var modalBody = document.querySelector(".modal-body");
-                    modalTitle.textContent = "Product Inactive";
-                    modalBody.textContent = `${response.productInactive}`;
-                    myModal.show();
-                }
+//                 if (response.productInactive) {
+//                     var myModal = new bootstrap.Modal(
+//                         document.getElementById("easySolutionModal"),
+//                         {
+//                             keyboard: true,
+//                             backdrop: "static",
+//                         }
+//                     );
+//                     var modalTitle = document.querySelector(".modal-title");
+//                     var modalBody = document.querySelector(".modal-body");
+//                     modalTitle.textContent = "Product Inactive";
+//                     modalBody.textContent = `${response.productInactive}`;
+//                     myModal.show();
+//                 }
 
-                if (response.duplicateProduct) {
-                    var myModal = new bootstrap.Modal(
-                        document.getElementById("easySolutionModal"),
-                        {
-                            keyboard: true,
-                            backdrop: "static",
-                        }
-                    );
-                    var modalTitle = document.querySelector(".modal-title");
-                    var modalBody = document.querySelector(".modal-body");
-                    modalTitle.textContent = "Duplicate Product";
-                    modalBody.textContent = `${response.duplicateProduct}`;
-                    myModal.show();
-                }
-            },
-            error: function (response) {
-                $("[data-ajax-input]").removeClass("is-invalid");
-                $("[data-ajax-feedback]").html("").removeClass("d-block");
-                if (response.responseJSON.hasOwnProperty("errors")) {
-                    $.each(response.responseJSON.errors, function (index, val) {
-                        /* iterate through array or object */
-                        $('[data-ajax-input="' + index + '"]').addClass(
-                            "is-invalid"
-                        );
-                        $('[data-ajax-feedback="' + index + '"]')
-                            .html(val[0])
-                            .addClass("d-block");
-                    });
-                }
-            },
-        });
-    });
+//                 if (response.duplicateProduct) {
+//                     var myModal = new bootstrap.Modal(
+//                         document.getElementById("easySolutionModal"),
+//                         {
+//                             keyboard: true,
+//                             backdrop: "static",
+//                         }
+//                     );
+//                     var modalTitle = document.querySelector(".modal-title");
+//                     var modalBody = document.querySelector(".modal-body");
+//                     modalTitle.textContent = "Duplicate Product";
+//                     modalBody.textContent = `${response.duplicateProduct}`;
+//                     myModal.show();
+//                 }
+//             },
+//             error: function (response) {
+//                 $("[data-ajax-input]").removeClass("is-invalid");
+//                 $("[data-ajax-feedback]").html("").removeClass("d-block");
+//                 if (response.responseJSON.hasOwnProperty("errors")) {
+//                     $.each(response.responseJSON.errors, function (index, val) {
+//                         /* iterate through array or object */
+//                         $('[data-ajax-input="' + index + '"]').addClass(
+//                             "is-invalid"
+//                         );
+//                         $('[data-ajax-feedback="' + index + '"]')
+//                             .html(val[0])
+//                             .addClass("d-block");
+//                     });
+//                 }
+//             },
+//         });
+//     });
 
-    //delete sales record
+//     //delete sales record
 
-    $("#btn_salesDelete").on("click", function () {
-        var idsArr = [];
-        var strIds = idsArr.join();
-        $.ajax({
-            type: "DELETE",
-            url: "/backend/delete-sales-single-data",
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
-                    "content"
-                ),
-            },
-            data: "id=" + strIds,
-            success: function (data) {
-                console.log(data.deleted);
-                if (data.status === true) {
-                    $(this).parents("tr").remove();
-                }
-            },
-            error: function (data) {
-                alert(data.responseText);
-            },
-        });
-    });
+//     $("#btn_salesDelete").on("click", function () {
+//         var idsArr = [];
+//         var strIds = idsArr.join();
+//         $.ajax({
+//             type: "DELETE",
+//             url: "/backend/delete-sales-single-data",
+//             headers: {
+//                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+//                     "content"
+//                 ),
+//             },
+//             data: "id=" + strIds,
+//             success: function (data) {
+//                 console.log(data.deleted);
+//                 if (data.status === true) {
+//                     $(this).parents("tr").remove();
+//                 }
+//             },
+//             error: function (data) {
+//                 alert(data.responseText);
+//             },
+//         });
+//     });
 
-});
+// });
 
 //payment begins here
 
-$(document).ready(function () {
-    const PAYMENT_TYPE = {
-        cash: "Cash",
-        transfer: "Transfer",
-        POS: "POS",
-    };
+// $(document).ready(function () {
+//     const PAYMENT_TYPE = {
+//         cash: "Cash",
+//         transfer: "Transfer",
+//         POS: "POS",
+//     };
 
-    const PAID_AMOUNT = $("#paid_amount");
-    const INVALID_AMOUNT = $("#invalid_amount");
-    const CUSTOMER_CHANGE = $("#customer_change");
-    const CUSTOMER_NAME_PAYMENT = $("#customer_name");
-    const CUSTOMER_NAME_RECEIPT = $("#customerName");
-    const BALANCE_COLLECT = $("#balance_collect");
-    const BTN_NEXT = $("#btn_next");
-    const DOUBLE_PAYMENT = $("#double_payment");
-    var cashPayment = $("#cash");
-    var transferPayment = $("#transfer");
-    var POSPayment = $("#POS");
+//     const PAID_AMOUNT = $("#paid_amount");
+//     const INVALID_AMOUNT = $("#invalid_amount");
+//     const CUSTOMER_CHANGE = $("#customer_change");
+//     const CUSTOMER_NAME_PAYMENT = $("#customer_name");
+//     const CUSTOMER_NAME_RECEIPT = $("#customerName");
+//     const BALANCE_COLLECT = $("#balance_collect");
+//     const BTN_NEXT = $("#btn_next");
+//     const DOUBLE_PAYMENT = $("#double_payment");
+//     var cashPayment = $("#cash");
+//     var transferPayment = $("#transfer");
+//     var POSPayment = $("#POS");
 
-    //check customer name, payment type and amount paid
+//     //check customer name, payment type and amount paid
 
-    $.get(
-        "/backend/get-sales-payment-data",
-        function (response, textStatus, jqXHR) {
-            console.log(response.getPaymentData);
+//     $.get(
+//         "/backend/get-sales-payment-data",
+//         function (response, textStatus, jqXHR) {
+//             console.log(response.getPaymentData);
 
-            //perform all these when a page is loaded
-            if (response.getPaymentData) {
-                //show money received from customer
-                PAID_AMOUNT.val(`${response.getPaymentData.paid_amount}`);
+//             //perform all these when a page is loaded
+//             if (response.getPaymentData) {
+//                 //show money received from customer
+//                 PAID_AMOUNT.val(`${response.getPaymentData.paid_amount}`);
 
-                //display customer change if the right amount is entered
-                CUSTOMER_CHANGE.text(
-                    `${response.getPaymentData.change_amount}`
-                );
+//                 //display customer change if the right amount is entered
+//                 CUSTOMER_CHANGE.text(
+//                     `${response.getPaymentData.change_amount}`
+//                 );
 
-                //display payment type
+//                 //display payment type
 
-                if (
-                    response.getPaymentData.payment_type === PAYMENT_TYPE.cash
-                ) {
-                    cashPayment
-                        .val(`${response.getPaymentData.payment_type}`)
-                        .prop("checked", true);
-                } else if (
-                    response.getPaymentData.payment_type ===
-                    PAYMENT_TYPE.transfer
-                ) {
-                    transferPayment
-                        .val(`${response.getPaymentData.payment_type}`)
-                        .prop("checked", true);
-                } else if (
-                    response.getPaymentData.payment_type === PAYMENT_TYPE.POS
-                ) {
-                    POSPayment.val(
-                        `${response.getPaymentData.payment_type}`
-                    ).prop("checked", true);
-                }
-                //display customer name on payment modal
-                window.localStorage.setItem(
-                    "CUSTOMER_NAME",
-                    `${response.getPaymentData.customer_name}`
-                );
-                CUSTOMER_NAME_PAYMENT.val(
-                    window.localStorage.getItem("CUSTOMER_NAME")
-                );
+//                 if (
+//                     response.getPaymentData.payment_type === PAYMENT_TYPE.cash
+//                 ) {
+//                     cashPayment
+//                         .val(`${response.getPaymentData.payment_type}`)
+//                         .prop("checked", true);
+//                 } else if (
+//                     response.getPaymentData.payment_type ===
+//                     PAYMENT_TYPE.transfer
+//                 ) {
+//                     transferPayment
+//                         .val(`${response.getPaymentData.payment_type}`)
+//                         .prop("checked", true);
+//                 } else if (
+//                     response.getPaymentData.payment_type === PAYMENT_TYPE.POS
+//                 ) {
+//                     POSPayment.val(
+//                         `${response.getPaymentData.payment_type}`
+//                     ).prop("checked", true);
+//                 }
+//                 //display customer name on payment modal
+//                 window.localStorage.setItem(
+//                     "CUSTOMER_NAME",
+//                     `${response.getPaymentData.customer_name}`
+//                 );
+//                 CUSTOMER_NAME_PAYMENT.val(
+//                     window.localStorage.getItem("CUSTOMER_NAME")
+//                 );
 
-                //receipt balance collect
-                window.localStorage.setItem(
-                    "BALANCE_COLLECT",
-                    `${response.getPaymentData.change_amount}`
-                );
-            }
-        }
-    );
-    $("#salesPayment").on("submit", function (event) {
-        event.preventDefault();
-        //display receipt data when payment is submitted
-        receiptData();
-        var paymentForm = $(this).closest("form");
-        $.ajax({
-            url: "/backend/sales-payment",
-            method: "POST",
-            data: paymentForm.serialize(),
-            success: function (response) {
-                if (response.invalidAmount) {
-                    INVALID_AMOUNT.text(`${response.invalidAmount}`);
-                    PAID_AMOUNT.css("borderColor", "#DC4C64");
+//                 //receipt balance collect
+//                 window.localStorage.setItem(
+//                     "BALANCE_COLLECT",
+//                     `${response.getPaymentData.change_amount}`
+//                 );
+//             }
+//         }
+//     );
+//     $("#salesPayment").on("submit", function (event) {
+//         event.preventDefault();
+//         //display receipt data when payment is submitted
+//         receiptData();
+//         var paymentForm = $(this).closest("form");
+//         $.ajax({
+//             url: "/backend/sales-payment",
+//             method: "POST",
+//             data: paymentForm.serialize(),
+//             success: function (response) {
+//                 if (response.invalidAmount) {
+//                     INVALID_AMOUNT.text(`${response.invalidAmount}`);
+//                     PAID_AMOUNT.css("borderColor", "#DC4C64");
 
-                    PAID_AMOUNT.on("focus", function () {
-                        INVALID_AMOUNT.text("");
-                        PAID_AMOUNT.css("borderColor", "");
-                    });
-                }
-                if (response.doublePayment) {
-                    DOUBLE_PAYMENT.text(`${response.doublePayment}`);
+//                     PAID_AMOUNT.on("focus", function () {
+//                         INVALID_AMOUNT.text("");
+//                         PAID_AMOUNT.css("borderColor", "");
+//                     });
+//                 }
+//                 if (response.doublePayment) {
+//                     DOUBLE_PAYMENT.text(`${response.doublePayment}`);
 
-                    DOUBLE_PAYMENT.css("color", "#DC4C64");
-                }
-                setTimeout(() => {
-                    DOUBLE_PAYMENT.text(`${response.doublePayment}`).hide();
-                }, 3000);
+//                     DOUBLE_PAYMENT.css("color", "#DC4C64");
+//                 }
+//                 setTimeout(() => {
+//                     DOUBLE_PAYMENT.text(`${response.doublePayment}`).hide();
+//                 }, 3000);
 
-                if (response.paymentData) {
-                    //show money received from customer
-                    PAID_AMOUNT.val(`${response.paymentData.paid_amount}`);
+//                 if (response.paymentData) {
+//                     //show money received from customer
+//                     PAID_AMOUNT.val(`${response.paymentData.paid_amount}`);
 
-                    //display customer change if the right amount is entered
-                    CUSTOMER_CHANGE.text(
-                        `${response.paymentData.change_amount}`
-                    );
+//                     //display customer change if the right amount is entered
+//                     CUSTOMER_CHANGE.text(
+//                         `${response.paymentData.change_amount}`
+//                     );
 
-                    console.log(response.paymentData);
+//                     console.log(response.paymentData);
 
-                    //display customer name on the payment and receipt modal when submit payment modal
-                    CUSTOMER_NAME_PAYMENT.val(
-                        window.localStorage.getItem("CUSTOMER_NAME")
-                    );
-                }
-            },
-            error: function (response) {
-                $("[data-ajax-input]").removeClass("is-invalid");
-                $("[data-ajax-feedback]").html("").removeClass("d-block");
-                if (response.responseJSON.hasOwnProperty("errors")) {
-                    $.each(response.responseJSON.errors, function (index, val) {
-                        /* iterate through array or object */
-                        $('[data-ajax-input="' + index + '"]').addClass(
-                            "is-invalid"
-                        );
-                        $('[data-ajax-feedback="' + index + '"]')
-                            .html(val[0])
-                            .addClass("d-block");
-                    });
-                }
-            },
-        });
-    });
-});
+//                     //display customer name on the payment and receipt modal when submit payment modal
+//                     CUSTOMER_NAME_PAYMENT.val(
+//                         window.localStorage.getItem("CUSTOMER_NAME")
+//                     );
+//                 }
+//             },
+//             error: function (response) {
+//                 $("[data-ajax-input]").removeClass("is-invalid");
+//                 $("[data-ajax-feedback]").html("").removeClass("d-block");
+//                 if (response.responseJSON.hasOwnProperty("errors")) {
+//                     $.each(response.responseJSON.errors, function (index, val) {
+//                         /* iterate through array or object */
+//                         $('[data-ajax-input="' + index + '"]').addClass(
+//                             "is-invalid"
+//                         );
+//                         $('[data-ajax-feedback="' + index + '"]')
+//                             .html(val[0])
+//                             .addClass("d-block");
+//                     });
+//                 }
+//             },
+//         });
+//     });
+// });
 
 
-    function receiptData() {
-        var salesReceiptBody = $("#salesReceiptBody");
-        $.get("/backend/get-sales-data", function (response) {
-            $.each(response.salesData, function (index, val) {
-                html = "<tr>";
-                html += "<td>" + `${index + 1}` + "</td>";
-                html += "<td>" + val.add_product.product_name + "</td>";
-                html += "<td>" + val.quantity + "</td>";
-                html += "<td>" + val.price + "</td>";
-                html += "<td>" + val.total + "</td>";
-                html += "</tr>";
+    // function receiptData() {
+    //     var salesReceiptBody = $("#salesReceiptBody");
+    //     $.get("/backend/get-sales-data", function (response) {
+    //         $.each(response.salesData, function (index, val) {
+    //             html = "<tr>";
+    //             html += "<td>" + `${index + 1}` + "</td>";
+    //             html += "<td>" + val.add_product.product_name + "</td>";
+    //             html += "<td>" + val.quantity + "</td>";
+    //             html += "<td>" + val.price + "</td>";
+    //             html += "<td>" + val.total + "</td>";
+    //             html += "</tr>";
 
-                salesReceiptBody.append(html);
-            });
+    //             salesReceiptBody.append(html);
+    //         });
 
-            //grand total on receipt
-            $("#overAll_total").text(`${response.grandTotal}`);
+    //         //grand total on receipt
+    //         $("#overAll_total").text(`${response.grandTotal}`);
 
-            //display company name on receipt
-            $(".company_name").text(`${response.companyBio}`);
+    //         //display company name on receipt
+    //         $(".company_name").text(`${response.companyBio}`);
 
-            CUSTOMER_NAME_RECEIPT.text(
-                window.localStorage.getItem("CUSTOMER_NAME")
-            );
-            BALANCE_COLLECT.text(
-                window.localStorage.getItem("BALANCE_COLLECT")
-            );
-        });
-    }
+    //         CUSTOMER_NAME_RECEIPT.text(
+    //             window.localStorage.getItem("CUSTOMER_NAME")
+    //         );
+    //         BALANCE_COLLECT.text(
+    //             window.localStorage.getItem("BALANCE_COLLECT")
+    //         );
+    //     });
+    // }
 
     //display data on receipt when window is ready
     $(document).ready(function () {
-        receiptData();
+       // receiptData();
     });
 
     //print receipt and clear all all forms tables
 
-    const PRINT_RECEIPT = document.getElementById("printReceipt");
-    $(document).ready(function () {
-        PRINT_RECEIPT.addEventListener("click", function () {
-            var idsArr = [];
-            var strIds = idsArr.join();
-            $.ajax({
-                type: "DELETE",
-                url: "/backend/delete-sales-data",
-                headers: {
-                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
-                        "content"
-                    ),
-                },
-                data: "ids=" + strIds,
-                success: function (data) {
-                    console.log(data.deleted);
-                    if (data.status === true) {
-                        //print the receipt
-                        window.print();
+    // const PRINT_RECEIPT = document.getElementById("printReceipt");
+    // $(document).ready(function () {
+    //     PRINT_RECEIPT.addEventListener("click", function () {
+    //         var idsArr = [];
+    //         var strIds = idsArr.join();
+    //         $.ajax({
+    //             type: "DELETE",
+    //             url: "/backend/delete-sales-data",
+    //             headers: {
+    //                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+    //                     "content"
+    //                 ),
+    //             },
+    //             data: "ids=" + strIds,
+    //             success: function (data) {
+    //                 console.log(data.deleted);
+    //                 if (data.status === true) {
+    //                     //print the receipt
+    //                     window.print();
 
-                        $(this).parents("tr").remove();
-                        $("#receipt_modalBodyData").html("");
-                        var myReceiptModal = new bootstrap.Modal(
-                            document.getElementById("printReceiptModal"),
-                            {
-                                keyboard: false,
-                                backdrop: "",
-                            }
-                        );
-                        myReceiptModal.hide();
-                    }
-                },
-                error: function (data) {
-                    alert(data.responseText);
-                },
-            });
-        });
-    });
+    //                     $(this).parents("tr").remove();
+    //                     $("#receipt_modalBodyData").html("");
+    //                     var myReceiptModal = new bootstrap.Modal(
+    //                         document.getElementById("printReceiptModal"),
+    //                         {
+    //                             keyboard: false,
+    //                             backdrop: "",
+    //                         }
+    //                     );
+    //                     myReceiptModal.hide();
+    //                 }
+    //             },
+    //             error: function (data) {
+    //                 alert(data.responseText);
+    //             },
+    //         });
+    //     });
+    // });
 

@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Category;
 use App\Models\Price;
+use App\Models\Admin;
 use App\Models\ProductSupplied;
 use App\Models\AddProduct;
 use App\Models\Payment;
@@ -34,16 +35,27 @@ use Exception;
 
 class AdminController extends Controller
 {
-    public DashboardRepository $dashboardRepository;
 
-    public function __construct()
+
+    public function __construct(public DashboardRepository $dashboardRepository)
     {
-        $this->middleware(['auth', 'verified'], ['except' => [
-            'indexPageCreate', 'indexPageStore', 'companyWelcome'
+
+        $this->middleware(['auth:admin','verified'], ['except' => [
+            'indexPageCreate', 'indexPageStore', 'companyWelcome','landingPage'
         ]]);
+
+              $this->dashboardRepository=$dashboardRepository;
 
     }
 
+    public function landingPage(){
+        if (User::count()==0) {
+            return view('landing-page');
+        }
+        return redirect()->route('admin.login');
+
+
+    }
     public function indexPageCreate()
     {
         if (CompanyBio::count() === 0) {
@@ -123,10 +135,18 @@ class AdminController extends Controller
 
     public function editCompanyCreate($id)
     {
+        $company_bio=new CompanyBio();
+        $admin=new Admin();
         try {
-            $edit_company = CompanyBio::where(['id' => $id])->first();
-            return view('company.admin-edit-company')->with(compact('edit_company'));
-        } catch (ErrorException $ex) {
+            if($admin->can('editCompanyCreate', $admin)) {
+                $edit_company = $company_bio->where(['id' => $id])->first();
+                return view('company.admin-edit-company')->with(compact('edit_company'));
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -151,44 +171,52 @@ class AdminController extends Controller
 
         try {
 
+            $company_bio=new CompanyBio();
+            $admin=new Admin();
 
+
+            if($admin->can('editCompanyStore', $admin)){
             if ($request->isMethod('post')) {
                 $data = $request->all();
 
 
-                //upload image
+    //upload image
 
-                if ($request->hasFile('company_image')) {
-                    $image_tmp = $request->file('company_image');
+    if ($request->hasFile('company_image')) {
+        $image_tmp = $request->file('company_image');
 
-                    if ($image_tmp->isValid()) {
-                        $extension = $image_tmp->getClientOriginalExtension();
-                        $filename = config('app.name') . '-' . rand(111, 99999) . '.' . $extension;
-                        $large_image_path = config('app.companyImage') . $filename;
+        if ($image_tmp->isValid()) {
+            $extension = $image_tmp->getClientOriginalExtension();
+            $filename = config('app.name') . '-' . rand(111, 99999) . '.' . $extension;
+            $large_image_path = config('app.companyImage') . $filename;
 
-                        //save the image
-                        Image::make($image_tmp)->save($large_image_path);
-                    }
-                } elseif (!empty($data['current_image'])) {
-                    $filename = $data['current_image'];
-                } else {
-                    $filename = '';
-                }
-
-
-                if (empty($filename)) {
-                    return redirect()->back()->with('flash_message_error', "Image is not added");
-                }
+            //save the image
+            Image::make($image_tmp)->save($large_image_path);
+           }
+            } elseif (!empty($data['current_image'])) {
+                $filename = $data['current_image'];
+            } else {
+                $filename = '';
+            }
 
 
-                CompanyBio::where(['id' => $id])->update([
-                    'company_name' => $data['company_name'],
-                    'company_mobile' => $data['company_mobile'],
-                    'company_email' => $data['company_email'],
-                    'company_image' => $filename,
-                ]);
+            if (empty($filename)) {
+                return redirect()->back()->with('flash_message_error', "Image is not added");
+            }
+
+
+            $company_bio->where(['id' => $id])->update([
+                'company_name' => $data['company_name'],
+                'company_mobile' => $data['company_mobile'],
+                'company_email' => $data['company_email'],
+                'company_image' => $filename,
+            ]);
+        }
 
                 return redirect()->back()->with('flash_message_success', "Company name successfully updated");
+            }
+            else{
+                abort(403);
             }
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -197,28 +225,33 @@ class AdminController extends Controller
 
     public function deleteCompanyImage($id)
     {
-        try {
+try {
 
+    $admin=new Admin();
+    if($admin->can('deleteCompanyImage', $admin)) {
+        // Get Company Image
+        $companyImage = CompanyBio::where('id', $id)->first();
 
-            // Get Company Image
-            $companyImage = CompanyBio::where('id', $id)->first();
+        // Get Advert Image Paths
+        $large_image_path = config('app.companyImage');
 
-            // Get Advert Image Paths
-            $large_image_path = config('app.companyImage');
-
-            // Delete Large Image if not exists in Folder
-            if (file_exists($large_image_path . $companyImage->company_image)) {
-                File::delete($large_image_path . $companyImage->company_image);
-            }
-
-            // Delete Image from CompanyBio table
-            CompanyBio::where(['id' => $id])->update(['company_image' => '']);
-
-            return redirect()->back()->with('flash_message_success', 'Company image has been deleted successfully');
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+        // Delete Large Image if not exists in Folder
+        if (file_exists($large_image_path . $companyImage->company_image)) {
+            File::delete($large_image_path . $companyImage->company_image);
         }
-    }
+
+        // Delete Image from CompanyBio table
+        CompanyBio::where(['id' => $id])->update(['company_image' => '']);
+
+        return redirect()->back()->with('flash_message_success', 'Company image has been deleted successfully');
+            } else {
+                abort(403);
+            }
+        }
+                    catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
+        }
 
     public function viewCompany()
     {
@@ -232,23 +265,34 @@ class AdminController extends Controller
         }
     }
 
-    public function addUserCreate()
-    {
+    public function addUserView()
+            {
 
-    try {
+        try {
+
+            $admin= new Admin();
+
+
+    if($admin->can('addUserView', $admin)) {
         $user_roles = Role::latest()->get();
         return view('user.admin-add-user')->with(compact('user_roles'));
-    } catch (ErrorException $ex) {
+    }
+    else{
+        abort(403);
+     }
+   }
+    catch (ErrorException $ex) {
         return response()->json(['message' => $ex->getMessage()]);
     }
 
     }
 
-    public function addUserStore(Request $request)
+    public function addUserSave(Request $request)
     {
+
         Validator::make($request->all(), [
             'name' => "required|max:255|regex:/^([a-zA-Z' ]+)$/",
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins'],
             'password' => ['required', 'required_with:password_confirmation', 'same:password_confirmation', Password::default()],
             'password_confirmation' => ['required', Password::default()],
             'user_image' => 'image|mimes:jpeg,png,jpg,gif,bmp,webp|max:20480',
@@ -257,61 +301,78 @@ class AdminController extends Controller
             'name.regex' => "This name field can only accept alphabet characters",
             'role_id.required' => "User role field is required",
         ])->validate();
+        $admin= new Admin();
 
-        try {
+       try {
 
-            if ($request->isMethod('post')) {
-                $data = $request->all();
-                $user = new User();
-                $user->name = $data['name'];
-                $user->email = $data['email'];
-                $user->password = Hash::make($data['password']);
+      if($admin->can('addUserSave', $admin)) {
 
-                if ($request->hasFile('user_image')) {
-                    $image_tmp = $request->file('user_image');
+    if ($request->isMethod('post')) {
+        $data = $request->all();
 
-                    if ($image_tmp->isValid()) {
-                        $extension = $image_tmp->getClientOriginalExtension();
-                        $filename = config('app.name') . '-' . rand(111, 99999) . Carbon::now()->toDateString() . '.' . $extension;
-                        $large_image_path = config('app.userImage') . $filename;
+        $admin->name = $data['name'];
+        $admin->email = $data['email'];
+        $admin->password = Hash::make($data['password']);
 
-                        //save the image
-                        Image::make($image_tmp)->save($large_image_path);
-                    }
-                }
-                $user->image = $filename;
-                $user->role_id = $data['role_id'];
-                $user->save();
-                event(new Registered($user));
+        if ($request->hasFile('user_image')) {
+            $image_tmp = $request->file('user_image');
 
-                return response()->json(['reply' => "Saved"]);
+            if ($image_tmp->isValid()) {
+                $extension = $image_tmp->getClientOriginalExtension();
+                $filename = config('app.name').'-'.rand(111, 99999) . Carbon::now()->toDateString() . '.' . $extension;
+                $large_image_path = config('app.userImage') . $filename;
+
+                //save the image
+                Image::make($image_tmp)->save($large_image_path);
             }
-        } catch (ErrorException $ex) {
+        }
+        if(empty($filename)){
+            $admin->image = "myimage";
+        }
+                    else{
+                $admin->image = $filename;
+                $admin->role_id = $data['role_id'];
+                $admin->save();
+                return response()->json(['reply' =>"Saved"]);
+            }
+                }
+                }
+                else {
+                abort(403);
+
+                    }
+                    }
+         catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
 
     public function deleteUserImage($id)
     {
+        $admin=new Admin();
         try {
+    if($admin->can('deleteUserImage', $admin)) {
+        // Get User Image
+        $userImage = Admin::where('id', $id)->first();
 
+        // Get Advert Image Paths
+        $large_image_path = config('app.userImage');
 
-            // Get User Image
-            $userImage = User::where('id', $id)->first();
+        // Delete Large Image if not exists in Folder
+        if (file_exists($large_image_path.$userImage->image)) {
+            File::delete($large_image_path.$userImage->image);
+        }
 
-            // Get Advert Image Paths
-            $large_image_path = config('app.userImage');
+        // Delete Image from CompanyBio table
+        Admin::where(['id' => $id])->update(['image' => '']);
 
-            // Delete Large Image if not exists in Folder
-            if (file_exists($large_image_path.$userImage->image)) {
-                File::delete($large_image_path.$userImage->image);
+        return redirect()->back()->with('flash_message_success', 'User image has been deleted successfully');
             }
-
-            // Delete Image from CompanyBio table
-            User::where(['id' => $id])->update(['image' => '']);
-
-            return redirect()->back()->with('flash_message_success', 'User image has been deleted successfully');
-        } catch (ErrorException $ex) {
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -319,24 +380,41 @@ class AdminController extends Controller
 
     public function viewUsers()
     {
-        try {
 
-            $admin_users = User::latest()->get();
+    $admin= new Admin();
 
-            return view('user.admin-view-user')->with(compact('admin_users'));
-        } catch (ErrorException $ex) {
+   try {
+
+    if($admin->can('viewUsers', $admin)) {
+
+        $admin_users = $admin->latest()->get();
+
+        return view('user.admin-view-user')->with(compact('admin_users'));
+        }
+        else{
+            abort(403);
+        }
+    }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
 
     public function editUserCreate($id)
     {
+        $admin=new Admin();
         try {
+            if($admin->can('editUserCreate', $admin)) {
 
-            $edit_user = User::where(['id' => $id])->first();
-            $user_roles = Role::latest()->get();
-            return view('user.admin-edit-user')->with(compact('edit_user', 'user_roles'));
-        } catch (ErrorException $ex) {
+                $edit_user = $admin->where(['id' => $id])->first();
+                $user_roles = Role::latest()->get();
+                return view('user.admin-edit-user')->with(compact('edit_user', 'user_roles'));
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -348,7 +426,7 @@ class AdminController extends Controller
             'name' => "required|max:255|regex:/^([a-zA-Z' ]+)$/",
             'email' => [
                 'required', 'string', 'email', 'max:255',
-                Rule::unique("users", "email")->ignore($id)
+                Rule::unique("admins", "email")->ignore($id)
             ],
             'user_image' => 'image|mimes:jpeg,png,jpg,gif,bmp,webp|max:20480',
             'role_id' => "required",
@@ -356,80 +434,101 @@ class AdminController extends Controller
             'role_id.required' => "User role field is required",
             'name.regex' => "This name field can only accept alphabet characters",
         ]);
+        $admin=new Admin();
 
         try {
 
-            if ($request->isMethod('post')) {
-                $data = $request->all();
+if($admin->can('editUserStore', $admin)) {
+
+    if ($request->isMethod('post')) {
+        $data = $request->all();
 
 
-                //upload image
+        //upload image
 
-                if ($request->hasFile('user_image')) {
-                    $image_tmp = $request->file('user_image');
+        if ($request->hasFile('user_image')) {
+            $image_tmp = $request->file('user_image');
 
-                    if ($image_tmp->isValid()) {
-                        $extension = $image_tmp->getClientOriginalExtension();
-                        $filename = config('app.name') . '-' . rand(111, 99999) . Carbon::now()->toDateString() . '.' . $extension;
-                        $large_image_path = config('app.userImage') . $filename;
+            if ($image_tmp->isValid()) {
+                $extension = $image_tmp->getClientOriginalExtension();
+                $filename = config('app.name') . '-' . rand(111, 99999) . Carbon::now()->toDateString() . '.' . $extension;
+                $large_image_path = config('app.userImage') . $filename;
 
-                        //save the image
-                        Image::make($image_tmp)->save($large_image_path);
-                    }
-                } elseif (!empty($data['current_image'])) {
-                    $filename = $data['current_image'];
-                } else {
-                    $filename = '';
-                }
-
-
-                if (empty($filename)) {
-                    return redirect()->back()->with('flash_message_error', "Image is not added");
-                }
-
-
-                User::where(['id' => $id])->update([
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'image' => $filename,
-                    'role_id' => $data['role_id'],
-                    'user_status' => $data['user_status'],
-                ]);
-
-                return redirect()->back()->with('flash_message_success', "User details successfully updated");
+                //save the image
+                Image::make($image_tmp)->save($large_image_path);
             }
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+        } elseif (!empty($data['current_image'])) {
+            $filename = $data['current_image'];
+        } else {
+            $filename = '';
         }
-    }
-    public function deleteUser($id)
-    {
-        try {
 
-            $admin_user = User::where(['id' => $id])->first();
 
-            $large_image_path = config('app.userImage');
+        if (empty($filename)) {
+            return redirect()->back()->with('flash_message_error', "Image is not added");
+        }
 
-            //Delete Image permenently
 
-            //Delete Large image if not exist
+        Admin::where(['id' => $id])->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'image' => $filename,
+            'role_id' => $data['role_id'],
+            'user_status' => $data['user_status'],
+        ]);
 
-            if (file_exists($large_image_path . $admin_user->image)) {
-                File::delete($large_image_path . $admin_user->image);
+        return redirect()->back()->with('flash_message_success', "User details successfully updated");
+         }
+        }
+            else{
+                abort(403);
             }
-
-            User::where(['id' => $id])->delete();
-
-            return redirect()->back()->with('flash_message_success', 'User Successfully Deleted');
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+            } catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
         }
-    }
+        public function deleteUser($id)
+        {
+            $admin=new Admin();
+    try {
+        if($admin->can('deleteUser', $admin)){
+
+        $admin_user = $admin->where(['id' => $id])->first();
+
+        $large_image_path = config('app.userImage');
+
+        //Delete Image permenently
+
+        //Delete Large image if not exist
+
+        if (file_exists($large_image_path . $admin_user->image)) {
+            File::delete($large_image_path . $admin_user->image);
+        }
+
+        $admin->where(['id' => $id])->delete();
+
+        return redirect()->back()->with('flash_message_success', 'User Successfully Deleted');
+        }
+
+            else{
+                abort(403);
+            }
+        }
+            catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
+        }
 
     public function addSuppliedProductCreate()
     {
+        $admin=new Admin();
+        if($admin->can('addSuppliedProductCreate', $admin)) {
 
-        return view('supply.admin-add-product-supplied');
+    return view('supply.admin-add-product-supplied');
+    }
+    else{
+        abort(403);
+    }
     }
 
     public function addSuppliedProductStore(Request $request)
@@ -447,13 +546,14 @@ class AdminController extends Controller
         ])->validate();
 
         try {
-
+            $admin=new Admin();
+        if($admin->can('addSuppliedProductStore', $admin)) {
             if ($request->isMethod('post')) {
                 $data = $request->all();
                 $product_supplied = new ProductSupplied();
                 $product_supplied->company_supplied = $data['company_supplied'];
                 $product_supplied->brand = $data['brand'];
-                $product_supplied->user_id = Auth::user()->id;
+                $product_supplied->user_id = Auth::guard('admin')->user()->id;
                 $product_supplied->product_supplied = $data['product_supplied'];
                 $product_supplied->phone_supplied = $data['phone_supplied'];
                 $product_supplied->quantity_supplied = $data['quantity_supplied'];
@@ -464,7 +564,12 @@ class AdminController extends Controller
                 $product_supplied->save();
                 return response()->json(['reply' => "productSuppliedSaved", "totalProductSupplied" => $product_supplied->getTotalSuppliedAmount()]);
             }
-        } catch (ErrorException $ex) {
+        }
+        else{
+            abort(403);
+        }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -473,10 +578,17 @@ class AdminController extends Controller
     {
 
         try {
+            $admin=new Admin();
+            if($admin->can('editSuppliedProductCreate', $admin)) {
 
-            $edit_supplied_product = ProductSupplied::where(['id' => $id])->first();
-            return view('supply.admin-edit-product-supplied')->with(compact('edit_supplied_product'));
-        } catch (ErrorException $ex) {
+                $edit_supplied_product = ProductSupplied::where(['id' => $id])->first();
+                return view('supply.admin-edit-product-supplied')->with(compact('edit_supplied_product'));
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -500,26 +612,32 @@ class AdminController extends Controller
 
         try {
 
-
-            if ($request->isMethod('post')) {
-                $data = $request->all();
-                $updated_supplied_product = ProductSupplied::find($id);
-                $updated_supplied_product->company_supplied = $data['company_supplied'];
-                $updated_supplied_product->brand = $data['brand'];
-                $updated_supplied_product->product_supplied = $data['product_supplied'];
-                $updated_supplied_product->phone_supplied = $data['phone_supplied'];
-                $updated_supplied_product->quantity_supplied = $data['quantity_supplied'];
-                $updated_supplied_product->unit_price = $data['unit_price'];
-                $updated_supplied_product->total_amount_supplied = $updated_supplied_product->getTotalSuppliedAmount();
-                $updated_supplied_product->supplied_receipt = $data['supplied_receipt'];
-                $updated_supplied_product->address_supplied = $data['address_supplied'];
-                $updated_supplied_product->save();
-                return redirect()->back()->with('flash_message_success', "Supplied Product is successfully updated and the total amount of the product supplied is {$updated_supplied_product->total_amount_supplied}");
+            $admin=new Admin();
+            if($admin->can('editSuppliedProductStore', $admin)) {
+                if ($request->isMethod('post')) {
+                    $data = $request->all();
+                    $updated_supplied_product = ProductSupplied::find($id);
+                    $updated_supplied_product->company_supplied = $data['company_supplied'];
+                    $updated_supplied_product->brand = $data['brand'];
+                    $updated_supplied_product->product_supplied = $data['product_supplied'];
+                    $updated_supplied_product->phone_supplied = $data['phone_supplied'];
+                    $updated_supplied_product->quantity_supplied = $data['quantity_supplied'];
+                    $updated_supplied_product->unit_price = $data['unit_price'];
+                    $updated_supplied_product->total_amount_supplied = $updated_supplied_product->getTotalSuppliedAmount();
+                    $updated_supplied_product->supplied_receipt = $data['supplied_receipt'];
+                    $updated_supplied_product->address_supplied = $data['address_supplied'];
+                    $updated_supplied_product->save();
+                    return redirect()->back()->with('flash_message_success', "Supplied Product is successfully updated and the total amount of the product supplied is {$updated_supplied_product->total_amount_supplied}");
+                }
             }
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+            else{
+                abort(403);
+            }
         }
-    }
+            catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
+        }
     public function viewSuppliedProducts()
     {
         try {
@@ -583,13 +701,19 @@ class AdminController extends Controller
     public function deleteSuppliedProductPermanentlyAll(Request $request)
     {
 
+            $admin=new Admin();
+        try {
+    if($admin->can('deleteSuppliedProductPermanently', $admin)) {
+        $ids = $request->ids;
+        ProductSupplied::onlyTrashed()->whereIn('id', explode(",", $ids))->forceDelete();
+        return response()->json(['status'=>true, 'deleted'=>"Selected Product supplied successfully deleted"]);
+            }
+            else{
+                abort(403);
+            }
+        }
 
-       try {
-
-            $ids = $request->ids;
-            ProductSupplied::onlyTrashed()->whereIn('id', explode(",", $ids))->forceDelete();
-            return response()->json(['status'=>true, 'deleted'=>"Selected Product supplied successfully deleted"]);
-           } catch (Exception $ex) {
+           catch (Exception $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -609,14 +733,20 @@ class AdminController extends Controller
 
     public function restoreArchivedProductSuppliedAll(Request $request)
     {
+        $admin=new Admin();
 
-    try {
+        try {
+        if($admin->can('restoreArchivedProductSuppliedAll', $admin)) {
 
-    $ids = $request->ids;
-    ProductSupplied::withTrashed()->whereIn('id', explode(",",$ids))->restore();
-    return response()->json(['status'=>true, 'restored'=>"Selected Product supplied successfully restored"]);
+        $ids = $request->ids;
+        ProductSupplied::withTrashed()->whereIn('id', explode(",", $ids))->restore();
+        return response()->json(['status'=>true, 'restored'=>"Selected Product supplied successfully restored"]);
 
-    }
+            }
+            else{
+                abort(403);
+            }
+            }
           catch (Exception $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
@@ -745,14 +875,22 @@ class AdminController extends Controller
     public function productCreate()
     {
 
+        $admin=new Admin();
         try {
+            if($admin->can('productCreate', $admin)) {
 
-            $categories = Category::latest()->get();
-            return view('product.admin-add-product')->with(compact('categories'));
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+                $categories = Category::latest()->get();
+                return view('product.admin-add-product')->with(compact('categories'));
+            }
+            else{
+                abort(403);
+            }
         }
-    }
+
+            catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
+        }
 
     public function productStore(Request $request)
     {
@@ -770,48 +908,58 @@ class AdminController extends Controller
         ])->validate();
         $data = $request->all();
         $product = new AddProduct();
+        $admin=new Admin();
 
-        try {
+try {
 
+    if($admin->can('productStore', $admin)) {
+        if ($request->isMethod('post')) {
 
-            if ($request->isMethod('post')) {
-
-
-
-                $product->user_id = Auth::user()->id;
-                $product->category_id = $data['category_id'];
-                $product->product_name = $data['product_name'];
-                $product->product_defect = $data['product_defect'];
-                if (!empty($data['product_defect'])) {
-                    $product->product_quantity = $data['product_quantity'] - $data['product_defect'];
-                } else {
-                    $product->product_quantity = $data['product_quantity'];
-                }
-                $product->sale_price = $data['sale_price'];
-                $product->total_amount = $product->getTotalProductAmount();
-
-                if (!isset($product_sessionId)) {
-                    $product_sessionId = Str::random(30);
-                    Session::put('product_sessionId', $product_sessionId);
-                }
-                $product->product_sessionId =$product_sessionId;
-                $product->save();
-                return response()->json(['reply' => "productSaved", "totalProductAmount" => $product->getTotalProductAmount()]);
+            $product->user_id = Auth::guard('admin')->user()->id;
+            $product->category_id = $data['category_id'];
+            $product->product_name = $data['product_name'];
+            $product->product_defect = $data['product_defect'];
+            if (!empty($data['product_defect'])) {
+                $product->product_quantity = $data['product_quantity'] - $data['product_defect'];
+            } else {
+                $product->product_quantity = $data['product_quantity'];
             }
-        } catch (ErrorException $ex) {
+            $product->sale_price = $data['sale_price'];
+            $product->total_amount = $product->getTotalProductAmount();
+
+            if (!isset($product_sessionId)) {
+                $product_sessionId = Str::random(30);
+                Session::put('product_sessionId', $product_sessionId);
+            }
+            $product->product_sessionId =$product_sessionId;
+            $product->save();
+            return response()->json(['reply' => "productSaved", "totalProductAmount" => $product->getTotalProductAmount()]);
+                }
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
 
-    public function editProductCreate($id)
-    {
+    public function editProductCreate($id) {
 
+        $admin=new Admin();
         try {
+            if($admin->can('editProductCreate', $admin)) {
 
-            $edit_product = AddProduct::where(['id' => $id])->first();
-            $edit_categories = Category::get();
-            return view('product.admin-edit-product')->with(compact('edit_product', 'edit_categories'));
-        } catch (ErrorException $ex) {
+        $edit_product = AddProduct::where(['id' => $id])->first();
+        $edit_categories = Category::get();
+        return view('product.admin-edit-product')->with(compact('edit_product', 'edit_categories'));
+            }
+        else{
+            abort(403);
+        }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -833,29 +981,35 @@ class AdminController extends Controller
             'product_defect.regex' => "please enter a valid product defect amount",
         ]);
         $updated_product = AddProduct::find($id);
+        $admin=new Admin();
         try {
 
-
+        if($admin->can('editProductStore', $admin)) {
             if ($request->isMethod('post')) {
                 $data = $request->all();
 
-                $updated_product->category_id = $data['category_id'];
-                $updated_product->product_name = $data['product_name'];
-                $updated_product->product_defect = $data['product_defect'];
-                if (!empty($data['product_defect'])) {
-                    $updated_product->product_quantity = $data['product_quantity'] - $data['product_defect'];
-                } else {
-                    $updated_product->product_quantity = $data['product_quantity'];
-                }
-
-                $updated_product->total_amount = $updated_product->getTotalProductAmount();
-                $updated_product->save();
-                return redirect()->back()->with('flash_message_success', "Product is successfully updated and the total amount of the product in the stock is {$updated_product->total_amount}");
-            }
-        } catch (ErrorException $ex) {
-            return response()->json(['message' => $ex->getMessage()]);
+        $updated_product->category_id = $data['category_id'];
+        $updated_product->product_name = $data['product_name'];
+        $updated_product->product_defect = $data['product_defect'];
+        if (!empty($data['product_defect'])) {
+            $updated_product->product_quantity = $data['product_quantity'] - $data['product_defect'];
+        } else {
+            $updated_product->product_quantity = $data['product_quantity'];
         }
-    }
+
+        $updated_product->total_amount = $updated_product->getTotalProductAmount();
+        $updated_product->save();
+        return redirect()->back()->with('flash_message_success', "Product is successfully updated and the total amount of the product in the stock is {$updated_product->total_amount}");
+            }
+        }
+        else{
+            abort(403);
+        }
+                    }
+                catch (ErrorException $ex) {
+                return response()->json(['message' => $ex->getMessage()]);
+            }
+        }
 
     public function viewProducts()
     {
@@ -884,13 +1038,20 @@ class AdminController extends Controller
     public function updateExistingProductCreate($id)
     {
 
-        try {
+        $admin=new Admin();
+            try {
+    if($admin->can('updateExistingProductCreate', $admin)) {
 
+        $edit_categories = Category::get();
+        $updateExisting_product = AddProduct::where(['id' => $id])->first();
+        return view('product.admin-update-existing-product')->with(compact('updateExisting_product', 'edit_categories'));
+            }
+            else{
+                abort(403);
+            }
+        }
 
-            $edit_categories = Category::get();
-            $updateExisting_product = AddProduct::where(['id' => $id])->first();
-            return view('product.admin-update-existing-product')->with(compact('updateExisting_product', 'edit_categories'));
-        } catch (ErrorException $ex) {
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -902,18 +1063,24 @@ class AdminController extends Controller
             'product_quantity' => "required|regex:/^\d{0,8}(\.\d{1,4})?$/",
         ]);
         $updated_product = AddProduct::find($id);
+        $admin=new Admin();
         try {
+            if($admin->can('updateExistingProductStore', $admin)) {
 
+        if ($request->isMethod('post')) {
+            $data = $request->all();
 
-            if ($request->isMethod('post')) {
-                $data = $request->all();
-
-                $updated_product->product_quantity += $data['product_quantity'];
-                $updated_product->total_amount = $updated_product->getTotalProductAmount();
-                $updated_product->save();
-                return redirect()->back()->with('flash_message_success', "The existing product is successfully updated, and the total amount of the product in the stock is {$updated_product->total_amount}");
+            $updated_product->product_quantity += $data['product_quantity'];
+            $updated_product->total_amount = $updated_product->getTotalProductAmount();
+            $updated_product->save();
+            return redirect()->back()->with('flash_message_success', "The existing product is successfully updated, and the total amount of the product in the stock is {$updated_product->total_amount}");
+                }
             }
-        } catch (ErrorException $ex) {
+            else{
+                abort(403);
+            }
+        }
+         catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -959,13 +1126,20 @@ class AdminController extends Controller
 
     public function deleteProductPermanentlyAll(Request $request)
     {
+            $admin=new Admin();
 
         try {
+    if($admin->can('updateExistingProductStore', $admin)) {
 
-            $ids = $request->ids;
-            AddProduct::onlyTrashed()->whereIn('id', explode(",",$ids))->forceDelete();
-            return response()->json(['status' => true, 'productDelete' => "Selected product(s) deleted successfully"]);
-        } catch (Exception $ex) {
+        $ids = $request->ids;
+        AddProduct::onlyTrashed()->whereIn('id', explode(",", $ids))->forceDelete();
+        return response()->json(['status' => true, 'productDelete' => "Selected product(s) deleted successfully"]);
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (Exception $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -986,12 +1160,18 @@ class AdminController extends Controller
     public function restoreArchivedProductAll(Request $request)
     {
 
+        $admin=new Admin();
         try {
-
-            $ids = $request->ids;
-            AddProduct::withTrashed()->whereIn('id', explode(",", $ids))->restore();
-            return response()->json(['status' => true, 'productRestore' => "Selected product(s) deleted successfully"]);
-        } catch (ErrorException $ex) {
+            if($admin->can('updateExistingProductStore', $admin)) {
+                $ids = $request->ids;
+                AddProduct::withTrashed()->whereIn('id', explode(",", $ids))->restore();
+                return response()->json(['status' => true, 'productRestore' => "Selected product(s) deleted successfully"]);
+            }
+            else{
+                abort(403);
+            }
+        }
+        catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
         }
     }
@@ -1101,9 +1281,9 @@ class AdminController extends Controller
     public function userProfilePageStore(Request $request)
     {
 
-        $user_id = Auth::user()->id;
-        $user = User::find($user_id);
-        $user_normal_id = User::firstOrFail();
+        $user_id = Auth::guard('admin')->user()->id;
+        $user = Admin::find($user_id);
+        $user_normal_id = Admin::firstOrFail();
 
         Validator::make(
             $request->all(),
@@ -1113,12 +1293,12 @@ class AdminController extends Controller
 
                 'email' => [
                     'required', 'string', 'email', 'max:255',
-                    Rule::unique('users', 'email')->ignore($user_id),
+                    Rule::unique('admins', 'email')->ignore($user_id),
                 ],
 
                 'phone' => [
                     'required',
-                    Rule::unique('users', 'phone')->ignore($user_id),
+                    Rule::unique('admins', 'phone')->ignore($user_id),
                 ],
 
             ],
@@ -1131,7 +1311,7 @@ class AdminController extends Controller
         try {
 
 
-            if ($user_normal_id->id !== Auth::user()->id) {
+            if ($user_normal_id->id !== Auth::guard('admin')->user()->id) {
 
                 return response()->json(['owner' => "userNotFound"], 403);
             }
@@ -1156,7 +1336,7 @@ class AdminController extends Controller
         try {
 
             $product_names = AddProduct::get();
-            $sales_pos=Sale::where(['user_id'=>Auth::user()->id])->get();
+            $sales_pos=Sale::where(['user_id'=>Auth::guard('admin')->user()->id])->get();
             return view('sales.admin-sales-pos')->with(compact('product_names','sales_pos'));
         } catch (ErrorException $ex) {
             return response()->json(['message' => $ex->getMessage()]);
@@ -1189,7 +1369,7 @@ class AdminController extends Controller
 try {
     if ($request->isMethod('post')) {
         $data=$request->all();
-        $user_id = Auth::user()->id;
+        $user_id = Auth::guard('admin')->user()->id;
         $session_id = Session::get('session_id');
         $saleRepository=new SaleRepository();
 
@@ -1275,7 +1455,7 @@ try {
         return response()->json(['doublePayment'=>"This payment has already been made"]);
     }
     else {
-        $payment->user_id=Auth::user()->id;
+        $payment->user_id=Auth::guard('admin')->user()->id;
         $payment->customer_name=$data['customer_name'];
         $payment->paid_amount=$data['paid_amount'];
         $payment->sales_amount=$saleRepository->getUserSalesAmount();
@@ -1320,7 +1500,7 @@ try {
 
        try {
 
-            $ids = Auth::user()->id;
+            $ids = Auth::guard('admin')->user()->id;
             Sale::whereIn('user_id', explode(",", $ids))->delete();
             return response()->json(['status'=>true, 'deleted'=>"Selected Payment record(s) successfully deleted"]);
            } catch (Exception $ex) {
@@ -1370,8 +1550,8 @@ try {
 
             $data = $request->all();
             $current_password = $data['current_password'];
-            $user_id = Auth::user()->id;
-            $check_password = User::where('id', $user_id)->first();
+            $user_id = Auth::guard('admin')->user()->id;
+            $check_password = Admin::where('id', $user_id)->first();
             if ($reply = Hash::check($current_password, $check_password->password)) {
 
                 return response()->json(['reply' => 'Success'], 200);
@@ -1405,22 +1585,22 @@ try {
         try {
 
 
-            $user_normal_id = User::firstOrFail();
+            $user_normal_id = Admin::firstOrFail();
 
-            if ($user_normal_id->id !== Auth::user()->id) {
+            if ($user_normal_id->id !== Auth::guard('admin')->user()->id) {
 
                 return response()->json(['userNotFound' => "Unable to perform this operation"], 403);
             }
 
             if ($request->isMethod('post')) {
                 $data = $request->all();
-                $old_pwd = User::where('id', Auth::user()->id)->first();
+                $old_pwd = Admin::where('id', Auth::guard('admin')->user()->id)->first();
                 $current_password = $data['current_password'];
                 //compare current password with old password
                 if (Hash::check($current_password, $old_pwd->password)) {
                     $new_password = Hash::make($data['new_password']);
                     // Update password if the old password is correct
-                    User::where('id', Auth::user()->id)->update(['password' => $new_password]);
+                    Admin::where('id', Auth::guard('admin')->user()->id)->update(['password' => $new_password]);
                     return response()->json(['reply' => "Saved"]);
                 } else {
 
@@ -1439,10 +1619,10 @@ try {
         $userRepository=new UserRepository();
     if ($request->isMethod('post')) {
     $data=$request->all();
-    if (!empty(Auth::user()->image)) {
-        User::deleteUserImage();
+    if (!empty(Auth::guard('admin')->user()->image)) {
+        Admin::deleteUserImage();
        }
-       User::where(['id' => Auth::user()->id])->update([
+       Admin::where(['id' => Auth::guard('admin')->user()->id])->update([
         'image' => "",
     ]);
     return response()->json(['userProfileAvatar'=>$userRepository->getUserAvatar()]);
@@ -1451,7 +1631,7 @@ try {
     public function userImage(){
         try{
             $userRepository=new UserRepository();
-      if (!empty(Auth::user()->image)) {
+      if (!empty(Auth::guard('admin')->user()->image)) {
     return response()->json(['userImg'=>$userRepository->getUserImage()]);
          }
             else{
@@ -1479,7 +1659,7 @@ try {
 
                 //upload image
                 if ($request->hasFile('image')) {
-                    User::deleteUserImage();
+                    Admin::deleteUserImage();
                     $image_tmp = $request->file('image');
                     if ($image_tmp->isValid()) {
                         $extension = $image_tmp->getClientOriginalExtension();
@@ -1493,7 +1673,7 @@ try {
 
 
 
-                User::where(['id' => Auth::user()->id])->update([
+                Admin::where(['id' => Auth::guard('admin')->user()->id])->update([
                     'image' => $filename ?? '',
                 ]);
 

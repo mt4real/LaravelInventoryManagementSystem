@@ -103,7 +103,7 @@
 
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="product actions">
-                                                    @canany(['updateExistingProductCreate','editProductCreate'], App\Models\User::class)
+                                                    @canany(['updateExistingProductCreate','editProductCreate'], App\Models\Admin::class)
                                                     <a href="{{ URL::signedRoute('admin.editProduct', ['id' => $view_product->id]) }}"
                                                         role="button" class="btn btn-primary"><i
                                                             class="fas fa-edit"></i>Edit</a>

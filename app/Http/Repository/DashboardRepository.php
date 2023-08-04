@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Repository;
 
-use App\Models\User;
+use App\Models\Admin;
 use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 
@@ -9,7 +9,7 @@ class DashboardRepository{
 
  public function getNumberOfAdminUsers(){
 
-     $countAdminUsers= User::with('role')->whereHas('role', function($q){
+     $countAdminUsers= Admin::with('role')->whereHas('role', function($q){
         $q->where('role_name', Role::ADMIN);
     })->count();
 
@@ -18,36 +18,36 @@ class DashboardRepository{
 
   public function getNumberOfActiveAdminUsers(){
 
-    $countActiveAdminUsers= User::with('role')->where('user_status', User::USER_ACTIVE)->whereHas('role', function($q){
+    $countActiveAdminUsers= Admin::with('role')->where('user_status', Admin::USER_ACTIVE)->whereHas('role', function($q){
         $q->where('role_name', Role::ADMIN);
     })->count();
 return $countActiveAdminUsers;
   }
   public function getNumberOfInactiveAdminUsers(){
 
-    $countInactiveAdminUsers= User::with('role')->where('user_status', User::USER_INACTIVE)->whereHas('role', function($q){
+    $countInactiveAdminUsers= Admin::with('role')->where('user_status', Admin::USER_INACTIVE)->whereHas('role', function($q){
         $q->where('role_name', Role::ADMIN);
     })->count();
    return $countInactiveAdminUsers;
   }
   public function getNumberOfSuperAdminUsers(){
-    $countSuperAdmins=User::with('role')->whereHas('role', function($q){
+    $countSuperUsers=Admin::with('role')->whereHas('role', function($q){
         $q->where('role_name', Role::SUPER_ADMIN);
     })->count();
-    return $countSuperAdmins;
+    return $countSuperUsers;
   }
   public function getNumberOfActiveSuperAdminUsers(){
-    $countActiveSuperAdmins=User::with('role')->where('user_status', User::USER_ACTIVE)->whereHas('role', function($q){
+    $countActiveSuperUsers=Admin::with('role')->where('user_status', Admin::USER_ACTIVE)->whereHas('role', function($q){
         $q->where('role_name', Role::SUPER_ADMIN);
     })->count();
-    return $countActiveSuperAdmins;
+    return $countActiveSuperUsers;
   }
   public function getNumberOfInactiveSuperAdminUsers(){
-    $countInactiveSuperAdmins=User::with('role')->where('user_status', User::USER_INACTIVE)->whereHas('role', function($q){
+    $countInactiveSuperUsers=Admin::with('role')->where('user_status', Admin::USER_INACTIVE)->whereHas('role', function($q){
         $q->where('role_name', Role::SUPER_ADMIN);
     })->count();
 
-    return $countInactiveSuperAdmins;
+    return $countInactiveSuperUsers;
   }
 }
 

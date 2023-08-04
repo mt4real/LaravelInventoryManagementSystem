@@ -3,7 +3,7 @@
     <main class="content">
         <div class="container-fluid p-0">
             <div class="row">
-                <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                {{-- <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
                     <p>
                         Sales History Report
                     </p>
@@ -12,7 +12,7 @@
                             <use xlink:href="#share"></use>
                         </svg><strong class="font-small">{{ __('View Sales History Report') }}</strong>
                     </a>
-                </div>
+                </div> --}}
 
                 <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
                     <p>
@@ -24,7 +24,7 @@
                         </svg><strong class="font-small">{{ __('View Product Supplied Report') }}</strong>
                     </a>
                 </div>
-                <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
+                {{-- <div class="col-md-4 col-sm-4 col-xs-4 col-lg-4">
                     <p>
                         Payment Report
                     </p>
@@ -33,7 +33,7 @@
                             <use xlink:href="#layer-group"></use>
                         </svg><strong class="font-small">{{ __('View Payments Report') }}</strong>
                     </a>
-                </div>
+                </div> --}}
             </div>
 
         </div>

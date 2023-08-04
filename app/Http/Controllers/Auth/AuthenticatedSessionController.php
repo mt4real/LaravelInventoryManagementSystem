@@ -19,11 +19,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        $user=new User();
-        if($user->count()===0){
-         return redirect()->route('register');
-     }
-        return view('adminAuth.admin-login');
+
+        return view('auth.login');
     }
 
 
@@ -39,7 +36,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME_ADMIN);
+        return redirect()->intended(RouteServiceProvider::HOME);
 
     }
 

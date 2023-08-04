@@ -56,7 +56,7 @@
 
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="product price actions">
-                                                    @canany(['updateExistingProductCreate'], App\Models\User::class)
+                                                    @canany(['updateExistingProductCreate'], App\Models\Admin::class)
                                                     <a href="{{ URL::signedRoute('admin.changePrice', ['id' => $price_view->id]) }}"
                                                         role="button" class="btn btn-primary"><i
                                                             class="fas fa-edit"></i>Edit</a>

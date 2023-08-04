@@ -19,7 +19,7 @@
 
 <body class="bg-light">
     <div class=" d-flex justify-content-between p-4">
-        <span>Company logo</span>
+        <span>Company logo admin</span>
         <span class="p-2 rounded" style="background: #1266F1; font-weight: 600">{{__('Email verification')}}</span>
         </div>
 
@@ -55,7 +55,7 @@
                      </p>
                 </div>
 
-                <form method="POST" action="{{ route('verification.send') }}">
+                <form method="POST" action="{{ route('email.out') }}">
                     @csrf
                     <div class="d-grid col-6 mx-auto mt-3">
                     <button type="submit" class="btn btn-primary btn-lg">

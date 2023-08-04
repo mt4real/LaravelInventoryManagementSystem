@@ -32,7 +32,7 @@
                         class="h3 text-center mt-2">{{__('Login Page')}}</h3>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('admin.login') }}">
                         @csrf
                         <div class="row">
                             <div class="col-md-12 col-lg-12 col-sm-12 col-xs-12">
@@ -60,16 +60,16 @@
                         <div class="d-flex justify-content-around mb-3">
                             <!-- Checkbox -->
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="{{old('remember') ? 'checked' : '' }}" id="rememeber"
+                                <input class="form-check-input" type="checkbox" name="remember" value="{{old('remember') ? 'checked' : '' }}" id="rememeber"
                                     checked />
                                 <label class="remember" for="remember"> Remember me </label>
                             </div>
-                            @if (Route::has('password.request'))
+                            {{-- @if (Route::has('password.request'))
                             <div class="text-primary">
                                     <a href="{{route('password.request')}}">{{__('forgot password?')}}</a>
                             </div>
-                            @endif
-                        </div>
+                            @endif --}}
+                         </div>
                         <div class="row">
                             <div class="d-grid col-10 mx-auto">
                                 <button type="submit" class="btn btn-primary  btn-lg">Login</button>

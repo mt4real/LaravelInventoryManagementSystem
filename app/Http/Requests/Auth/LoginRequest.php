@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Admin;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -42,11 +43,11 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate()
+    public function authenticate($guard = 'web')
     {
         $this->ensureIsNotRateLimited();
         $remember = $this->has('remember') ? true : false;
-        if (! Auth::guard('web')->attempt(['email'=>$this->email,'password'=>$this->password,'user_status'=>User::USER_ACTIVE],$remember))  {
+        if (! Auth::guard($guard)->attempt(['email'=>$this->email,'password'=>$this->password,'user_status'=>Admin::USER_ACTIVE],$remember))  {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

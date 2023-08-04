@@ -47,7 +47,7 @@
                                                     <img src="{{ asset(config('app.userImage') . $admin_user->image) }}"
                                                         class="img-fluid" width="40" height="40" alt="User image">
                                                 @else
-                                                    <img src="{{ Avatar::create(ucwords(Auth::user()->name))->toBase64() }}"
+                                                    <img src="{{ Avatar::create(ucwords(Auth::guard('admin')->user()->name))->toBase64() }}"
                                                         class="rounded-circle" width="40" alt="Profile avatar" />
                                                 @endif
                                             </td>
@@ -57,7 +57,7 @@
 
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="edit company">
-                                                    @canany(['addUserCreate','deleteUser'], App\Models\User::class)
+                                                    @canany(['addUserCreate','deleteUser'], App\Models\Admin::class)
                                                     <a href="{{ URL::signedRoute('admin.editUser', ['id' => $admin_user->id]) }}"
                                                         role="button" class="btn btn-primary"><i
                                                             class="fas fa-edit"></i>Edit</a>

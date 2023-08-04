@@ -51,34 +51,5 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
-    public const USER_ACTIVE = "ACTIVE";
-    public const USER_INACTIVE = "INACTIVE";
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class, 'role_id');
-    }
-
-    public static function deleteUserImage()
-    {
-        // Get Company Image
-        $userImage= User::where('id', Auth::user()->id)->first();
-
-        // Get Advert Image Paths
-        $large_image_path = config('app.userImage');
-
-        // Delete Large Image if not exists in Folder
-        if (file_exists($large_image_path.$userImage->image)) {
-            File::delete($large_image_path.$userImage->image);
-        }
-
-        }
-
-    public function isSuperAdmin()
-    {
-        $userType=User::with('role')->where(['id'=>Auth::user()->id])->first();
-        if ($userType->role['role_name']==Role::SUPER_ADMIN) {
-            return true;
-        }
-    }
 }
+
